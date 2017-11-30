@@ -50,6 +50,11 @@ function init_easytransac_gateway()
 			$this->init_form_fields();
 			$this->init_settings();
 			$this->settings['notifurl'] = get_site_url() . '/wc-api/easytransac';
+			$this->supports = array(
+				'products',
+				'subscriptions',
+				'subscription_cancellation'
+			);
 
 			$this->title = $this->get_option('title');
 
@@ -123,11 +128,11 @@ function init_easytransac_gateway()
 					'default' => get_site_url() . '/wc-api/easytransac',
 				),
 				'debug_mode' => array(
-                                    'title' => __('Enable/Disable debug mode', 'easytransac_woocommerce') ,
-                                    'type' => 'checkbox',
-                                    'label' => __('Enable/Disable debug mode', 'easytransac_woocommerce') ,
-                                    'default' => 'no'
-                                ) ,
+                    'title' => __('Enable/Disable debug mode', 'easytransac_woocommerce') ,
+                    'type' => 'checkbox',
+                    'label' => __('Enable/Disable debug mode', 'easytransac_woocommerce') ,
+                    'default' => 'no'
+                ) ,
 			);
 		}
 
@@ -146,13 +151,16 @@ function init_easytransac_gateway()
 		 */
 		function process_payment($order_id)
 		{
+			$order = new WC_Order($order_id);
+			if (wcs_order_contains_subscription($order)) {
+				$subscriptions_order = wcs_get_subscriptions_for_order($order, array('order_type' => 'parent'));
+			} 
 			// If OneClick button has been clicked.
-			$is_oneclick = isset($_POST['is_oneclick']) && !empty($_POST['oneclick_alias']);
+			$is_oneclick = isset($_POST['is_oneclick']) && !empty($_POST['oneclick_alias']) && !wcs_order_contains_subscription($order);
 
 			$api_key = $this->get_option('api_key');
 			$dsecure3 = $this->get_option('3dsecure');
 
-			$order = new WC_Order($order_id);
 			$address = $order->get_address();
 			
 			$return_url = add_query_arg('wc-api', 'easytransac', home_url('/'));
@@ -166,9 +174,9 @@ function init_easytransac_gateway()
 			$version_string = sprintf('WooCommerce 2.4 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
 			$language = get_locale() == 'fr_FR' ? 'FRE' : 'ENG';
 
-                        // If Debug Mode is enabled
-                        EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
-                        EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+            // If Debug Mode is enabled
+            EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
+			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
 
 			EasyTransac\Core\Services::getInstance()->provideAPIKey($api_key);
 
@@ -248,8 +256,11 @@ function init_easytransac_gateway()
 						->setCallingCode('')
 						->setPhone($address['phone']);
 
-				$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
-						->setAmount(100 * $order->get_total())
+				if (wcs_order_contains_subscription($order)) {
+					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
+						->setRebill('yes')
+						->setDownPayment(100 * $order->get_total())
+						->setAmount(100 * $subscription_order->get_total())
 						->setCustomer($customer)
 						->setOrderId($order_id)
 						->setReturnUrl($return_url)
@@ -257,7 +268,17 @@ function init_easytransac_gateway()
 						->setSecure($dsecure3)
 						->setVersion($version_string)
 						->setLanguage($language);
-
+				} else {
+					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
+						->setAmount(100 * $order->get_total())					
+						->setCustomer($customer)
+						->setOrderId($order_id)
+						->setReturnUrl($return_url)
+						->setCancelUrl($cancel_url)
+						->setSecure($dsecure3)
+						->setVersion($version_string)
+						->setLanguage($language);
+				}
 				$request = new EasyTransac\Requests\PaymentPage();
 				
 				/* @var  $response \EasyTransac\Entities\PaymentPageInfos */
@@ -348,8 +369,8 @@ function init_easytransac_gateway()
 		 */
 		function check_callback_response()
 		{
-                        EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
-                        EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+            EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
+            EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
                         
 			// OneClick handlers.
 			if (isset($_GET['listcards']))
@@ -412,7 +433,7 @@ function init_easytransac_gateway()
 			switch ($response->getStatus())
 			{
 				case 'failed':
-                                        // Log error
+                    // Log error
 					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());								
 
 					$order->update_status('failed', $response->getMessage());
