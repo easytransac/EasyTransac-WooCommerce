@@ -12,34 +12,28 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Domain Path: /i18n/languages/
  *
  */
-if (!defined('ABSPATH'))
-{
+if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 
 // Requirements errors messages
-function easytransac__curl_error()
-{
+function easytransac__curl_error() {
 	$class = 'notice notice-error';
 	$message = 'Easytransac: PHP cURL extension missing';
 	printf('<div class="%1$s"><p>%2$s</p></div>', $class, $message);
 }
 
-function easytransac__openssl_error()
-{
+function easytransac__openssl_error() {
 	$message = 'EasyTransac: OpenSSL version not supported "' . OPENSSL_VERSION_TEXT . '" < 1.0.1';
 	$class = 'notice notice-error';
 	printf('<div class="%1$s"><p>%2$s</p></div>', $class, $message);
 }
 
-function init_easytransac_gateway()
-{
+function init_easytransac_gateway() {
 
-	class EasyTransacGateway extends WC_Payment_Gateway
- 	{
+	class EasyTransacGateway extends WC_Payment_Gateway {
 
-		function __construct()
-		{
+		function __construct() {
 
 			$this->id = 'easytransac';
 			$this->icon = '';
@@ -53,7 +47,7 @@ function init_easytransac_gateway()
 			$this->supports = array(
 							'products',
 							'subscriptions'
-						);
+							);
 
 			$this->title = $this->get_option('title');
 
@@ -72,20 +66,17 @@ function init_easytransac_gateway()
 			$openssl_version_supported = OPENSSL_VERSION_NUMBER >= 0x10001000;
 			$curl_activated = function_exists('curl_version');
 
-			if (!$openssl_version_supported)
-			{
+			if (!$openssl_version_supported) {
 				add_action('admin_notices', 'easytransac__openssl_error');
 			}
 
-			if (!$curl_activated)
-			{
+			if (!$curl_activated) {
 				add_action('admin_notices', 'easytransac__curl_error');
 			}
 		}
 
 		// Settings form
-		function init_form_fields()
-		{
+		function init_form_fields() {
 			$this->form_fields = array(
 				'enabled' => array(
 					'title' => __('Enable/Disable', 'easytransac_woocommerce') ,
@@ -139,8 +130,7 @@ function init_easytransac_gateway()
 		* Returns EasyTransac's ClientId.
 		* @return string
 		*/
-		function getClientId()
-		{
+		function getClientId() {
 			return get_user_meta(get_current_user_id(), 'easytransac-clientid', 1);
 		}
 
@@ -148,8 +138,7 @@ function init_easytransac_gateway()
 		* Process payment.
 		* @param int $order_id
 		*/
-		function process_payment($order_id)
-		{
+		function process_payment($order_id) {
 			$order = new WC_Order($order_id);
 			$order = wc_get_order( $order_id );
 
@@ -160,12 +149,13 @@ function init_easytransac_gateway()
 				// Get an instance of corresponding the WC_Product object
 				$product = $item_data->get_product();
 				$product_type = $product->get_type(); // Get the type of product
-				$item_quantity = $item_data->get_quantity(); // Get the item quantity
 				$item_total = $item_data->get_total(); // Get the item line total
 
 				// If the product is a subscription product, add to the total
-				if ($product_type == 'subscription')
+				if ($product_type == 'subscription') {
 					$total_subscription += $item_total;
+					$product_subscription = $product->billing_period;
+				}
 			}
 
 			// If OneClick button has been clicked && the ,order isn't a subscription order.
@@ -193,8 +183,7 @@ function init_easytransac_gateway()
 
 			EasyTransac\Core\Services::getInstance()->provideAPIKey($api_key);
 
-			if ($is_oneclick)
-			{
+			if ($is_oneclick) {
 				// SDK OneClick
 				$transaction = (new EasyTransac\Entities\OneClickTransaction())
 				->setAlias(strip_tags($_POST['oneclick_alias']))
@@ -212,23 +201,19 @@ function init_easytransac_gateway()
 					EasyTransac\Core\Logger::getInstance()->write('Payment Exception: ' . $exc->getMessage());
 				}
 
-				if ($response->isSuccess())
-				{
+				if ($response->isSuccess()) {
 					/* @var $doneTransaction \EasyTransac\Entities\DoneTransaction */
 					$doneTransaction = $response->getContent();
 
 					$this->process_response($doneTransaction);
 
-					if (in_array($doneTransaction->getStatus(), array('captured', 'pending')))
-					{
+					if (in_array($doneTransaction->getStatus(), array('captured', 'pending'))) {
 						// Payment is processed / captured
 						return array(
 							'result' => 'success',
 							'redirect' => $this->get_return_url(),
 							);
-					}
-					else
-					{
+					} else {
 						// Log error
 						EasyTransac\Core\Logger::getInstance()->write('Payment failed: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());
 
@@ -239,9 +224,7 @@ function init_easytransac_gateway()
 							'result' => 'error',
 							);
 					}
-				}
-				else
-				{
+				} else {
 					// Log error
 					EasyTransac\Core\Logger::getInstance()->write('Payment failed: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());
 
@@ -252,9 +235,7 @@ function init_easytransac_gateway()
 						'result' => 'error',
 						);
 				}
-			}
-			else
-			{
+			} else {
 				// SDK Payment Page
 				$customer = (new EasyTransac\Entities\Customer())
 					->setEmail($address['email'])
@@ -275,6 +256,7 @@ function init_easytransac_gateway()
 						->setRebill('yes')
 						->setDownPayment(100 * $order->get_total())
 						->setAmount(100 * $total_subscription)
+						->setRecurrence($product_subscription)
 						->setCustomer($customer)
 						->setOrderId($order_id)
 						->setReturnUrl($return_url)
@@ -297,20 +279,17 @@ function init_easytransac_gateway()
 				$request = new EasyTransac\Requests\PaymentPage();
 
 				/* @var $response \EasyTransac\Entities\PaymentPageInfos */
-				try
-				{
+				try {
 					$response = $request->execute($transaction);
 				}
-				catch (Exception $exc)
-				{
+				catch (Exception $exc) {
 					EasyTransac\Core\Logger::getInstance()->write('Payment Exception: ' . $exc->getMessage());
 				}
 			}
 
 			$_SESSION['easytransac_order_id'] = $order_id;
 
-			if (!$response->isSuccess())
-			{
+			if (!$response->isSuccess()) {
 				// Log error
 				EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());
 
@@ -324,13 +303,10 @@ function init_easytransac_gateway()
 			}
 
 			// Reduce stock levels
-			if (function_exists('wc_reduce_stock_levels'))
-			{
+			if (function_exists('wc_reduce_stock_levels')) {
 				// WooCommerce v3
 				wc_reduce_stock_levels($order);
-			}
-			else
-			{
+			} else {
 				$order->reduce_order_stock();
 			}
 
@@ -344,8 +320,7 @@ function init_easytransac_gateway()
 		/**
 		* Listcards AJAX callback.
 		*/
-		function listcards()
-		{
+		function listcards() {
 			$clientId = $this->getClientId();
 			if (!$clientId)
 			die(json_encode(array()));
@@ -356,11 +331,9 @@ function init_easytransac_gateway()
 			$request = new EasyTransac\Requests\CreditCardsList();
 			$response = $request->execute($customer);
 
-			if ($response->isSuccess())
-			{
+			if ($response->isSuccess()) {
 				$buffer = array();
-				foreach ($response->getContent()->getCreditCards() as $cc)
-				{
+				foreach ($response->getContent()->getCreditCards() as $cc) {
 					/* @var $cc EasyTransac\Entities\CreditCard */
 					$buffer[] = array('Alias' => $cc->getAlias(), 'CardNumber' => $cc->getNumber());
 				}
@@ -372,8 +345,7 @@ function init_easytransac_gateway()
 		/**
 		* Debug function.
 		*/
-		function _debug($var)
-		{
+		function _debug($var) {
 			file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . 'dump', $var);
 		}
 
@@ -382,14 +354,12 @@ function init_easytransac_gateway()
 		*
 		* Example: http://yoursite.com/wc-api/easytransac
 		*/
-		function check_callback_response()
-		{
+		function check_callback_response() {
 			EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
 			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
 
 			// OneClick handlers.
-			if (isset($_GET['listcards']))
-			{
+			if (isset($_GET['listcards'])) {
 				$this->listcards();
 				die;
 			}
@@ -397,25 +367,21 @@ function init_easytransac_gateway()
 			$received_data = array_map('stripslashes_deep', $_POST);
 
 			$api_key = $this->get_option('api_key');
-			if (empty($api_key))
-			{
+			if (empty($api_key)) {
 				header('Location: ' . home_url('/'));
 				exit;
 			}
 
 			$is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
-			if($is_https || (!$is_https && !empty($received_data)))
-			{
+			if($is_https || (!$is_https && !empty($received_data))) {
 				// FIX : HTTPS return or notification + HTTP api call
-				try
-				{
+				try {
 					$response = \EasyTransac\Core\PaymentNotification::getContent($_POST, $api_key);
 
 					if(!$response) throw new Exception ('empty response');
 				}
-				catch (Exception $exc)
-				{
+				catch (Exception $exc) {
 					// Log error
 					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getErrorCode() . ' (' . $exc->getMessage().') - ' . ($response instanceof EasyTransac\Responses\StandardResponse ? $response->getErrorMessage():''));
 
@@ -427,15 +393,13 @@ function init_easytransac_gateway()
 			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($_POST, true));
 
 			// On non-HTTPS sites, simply redirects and wait for the notification the update the status.
-			if (empty($received_data) && !$is_https)
-			{
+			if (empty($received_data) && !$is_https) {
 				// FIX : On HTTP sites received_data must be empty or its the API call.
 				header('Location: ' . $this->get_return_url());
 				exit;
 			}
 
-			if (empty($received_data))
-			{
+			if (empty($received_data)) {
 				header('Location: ' . home_url('/'));
 				exit;
 			}
@@ -445,8 +409,7 @@ function init_easytransac_gateway()
 			// Save transaction ID
 			update_post_meta($response->getOrderId(), 'ET_Tid', $response->getTid());
 
-			switch ($response->getStatus())
-			{
+			switch ($response->getStatus()) {
 				case 'failed':
 					// Log error
 					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());
@@ -484,15 +447,13 @@ function init_easytransac_gateway()
 		*
 		* @todo Use in check_callback_response() which is payment-page-logic only.
 		*/
-		function process_response($received_data)
-		{
+		function process_response($received_data) {
 			$order = new WC_Order($received_data);
 
 			// Saves transaction ID in the order object.
 			update_post_meta($received_data->getOrderId(), 'ET_Tid', $received_data->getTid());
 
-			switch ($received_data->getStatus())
-			{
+			switch ($received_data->getStatus()) {
 				case 'failed':
 					$order->update_status('failed', $received_data->getMessage());
 				break;
@@ -551,8 +512,7 @@ function init_easytransac_gateway()
 		* Get gateway icon.
 		* @return string
 		*/
-		public function get_icon()
-		{
+		public function get_icon() {
 			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.jpg';
 			$icon_html = '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;" />';
 
@@ -572,8 +532,7 @@ function init_easytransac_gateway()
 // Load plugin
 add_action('plugins_loaded', 'init_easytransac_gateway');
 
-function add_easytransac_gateway($methods)
-{
+function add_easytransac_gateway($methods) {
 	$methods[] = 'EasyTransacGateway';
 	return $methods;
 }
