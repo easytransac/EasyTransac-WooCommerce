@@ -71,6 +71,9 @@ In the notification URL enter your website's URI followed by '/wc-api/easytransa
 
 ## == Changelog ==
 
+### = 2.4 =
+* Debug Mode
+
 ### = 2.3 =
 * EasyTransac SDK update to v1.0.10
 
