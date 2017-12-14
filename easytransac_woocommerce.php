@@ -142,6 +142,7 @@ function init_easytransac_gateway() {
 			$order = new WC_Order($order_id);
 			$order = wc_get_order( $order_id );
 
+			$total_subscription = 0;
 			// Iterating through each "line" items in the order
 			// Count the total price of subscription product
 			foreach ($order->get_items() as $item_id => $item_data) {
@@ -154,7 +155,7 @@ function init_easytransac_gateway() {
 				// If the product is a subscription product, add to the total
 				if ($product_type == 'subscription') {
 					$total_subscription += $item_total;
-					$product_subscription = $product->billing_period;
+					$product_subscription = WC_Subscriptions_Product::get_period($product);
 				}
 			}
 
@@ -167,7 +168,7 @@ function init_easytransac_gateway() {
 			$address = $order->get_address();
 
 			$return_url = add_query_arg('wc-api', 'easytransac', home_url('/'));
-			$cancel_url = WooCommerce::instance()->cart->get_cart_url();
+			$cancel_url = wc_get_cart_url();
 
 			// Requirements.
 			$curl_info_string = function_exists('curl_version') ? 'enabled' : 'not found';
@@ -256,7 +257,6 @@ function init_easytransac_gateway() {
 						->setRebill('yes')
 						->setDownPayment(100 * $order->get_total())
 						->setAmount(100 * $total_subscription)
-						->setRecurrence($product_subscription)
 						->setCustomer($customer)
 						->setOrderId($order_id)
 						->setReturnUrl($return_url)
@@ -264,6 +264,24 @@ function init_easytransac_gateway() {
 						->setSecure($dsecure3)
 						->setVersion($version_string)
 						->setLanguage($language);
+
+						switch ($product_subscription) {
+							case 'day':
+								$transaction->setRecurrence('daily');
+							break;
+							case 'week':
+								$transaction->setRecurrence('weekly');
+							break;
+							case 'month':
+								$transaction->setRecurrence('monthly');
+							break;
+							case 'year':
+								$transaction->setRecurrence('yearly');
+							break;
+							case '':
+								$transaction->setRecurrence('monthly');
+							break;
+						}
 				} else {
 					// If the order contain only "normal" products
 					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
