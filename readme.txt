@@ -1,24 +1,24 @@
-=== Plugin Name ===
+# === EasyTransac-Woocomerce ===
 Contributors: EasyTransac
 Tags: payment,checkout,payment pro,encaissement,moyen de paiement,paiement,bezahlsystem,purchase,online payment,easytransac
 Requires at least: 4.1
-Tested up to: 4.9.1
-Stable tag: 2.4
+Tested up to: 4.8.3
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 EasyTransac payment gateway for WooCommerce.
 
-== Description ==
+## == Description ==
 
-= Introduction =
+### = Introduction =
 
 Easy payment solution for your Wordpress WooCommerce website:
 
  * Accept all CB, VISA, and Mastercard payments in euro
  * EasyTransac provides turnkey secure payment at very low charge rates
 
-= Easy install step by step =
+### = Easy install step by step =
 
 Please check the following points in order to install this module:
 
@@ -35,7 +35,7 @@ Please check the following points in order to install this module:
 
 See our website for <a href="https://www.easytransac.com/en/e-comerce">a complete list of our other E-comerce modules</a>
 
-== Requirements ==
+## == Requirements ==
 
 Please check your phpinfo for the following requirements:
 
@@ -43,7 +43,7 @@ Please check your phpinfo for the following requirements:
  * OpenSSL version 1.0.1
  * Works on WooCommerce v2.8 and v3+
 
-== Installation ==
+## == Installation ==
 
 1. Create account on https://www.easytransac.com, then log in and got to 'Applications' and add a new application.
 On the application creation page, you'll have to give a name to the application that will allow you to filter the transactions if you have many uses of EasyTransac.
@@ -57,9 +57,9 @@ In the notification URL enter your website's URI followed by '/wc-api/easytransa
 8. Use the WooCommerce->Settings->Checkout->EasyTransac screen to configure your EasyTransac API key.
 
 
-== Frequently Asked Questions ==
+## == Frequently Asked Questions ==
 
-= How to get my EasyTransac API Key? =
+### = How to get my EasyTransac API Key? =
 
 * First of all, create an account on https://www.easytransac.com, then log in and got to 'Applications' and add a new application.
 On the application creation page, you'll have to give a name to the application that will allow you to filter the transactions if you have many uses of EasyTransac.
@@ -69,54 +69,54 @@ On the application creation page, you'll have to give a name to the application 
 In the notification URL enter your website's URI followed by '/wc-api/easytransac'. Example: http://yoursite.com/wc-api/easytransac
  
 
-== Changelog ==
+## == Changelog ==
 
-= 2.4 =
-* New debug mode for problem troubleshooting.
+### = 2.4 =
+* Debug Mode
 
-= 2.3 =
+### = 2.3 =
 * EasyTransac SDK update to v1.0.10
 
-= 2.2 =
+### = 2.2 =
 * WooCommerce v3 compatibility.
 * HTTP notification issue fix for HTTP only websites.
 
-= 2.1 =
+### = 2.1 =
 * OneClick can be disabled.
 
-= 2.0 =
+### = 2.0 =
 * Easytransac SDK integration. New requirement : PHP >= 5.5.
 
-= 1.9 =
+### = 1.9 =
 * Language of payment page is set.
 
-= 1.8 =
+### = 1.8 =
 * OneClick payments.
 
-= 1.7 =
+### = 1.7 =
 * cURL fallback.
 * Notification URL helper on settings page.
 
-= 1.6 =
+### = 1.6 =
 * New logo.
 
-= 1.5 =
+### = 1.5 =
 * TLSv1.1 Fallback instead of TLSv1 which is not working correctly on certain systems.
 
-= 1.4 =
+### = 1.4 =
 * Non-HTTPS websites hotfix.
 
-= 1.3 =
+### = 1.3 =
 * Cancel button redirects back to the cart.
 * The cart is only emptied when the payment is completed.
 * Refund support removed: EasyTransac API doesn't support partial refund nor WooCommerce supports full refund only. Refund can still be done via the EasyTransac back office.
 
-= 1.2 =
+### = 1.2 =
 * Support for non-HTTPS websites.
 * Adds system requirements checks.
 
-= 1.1 =
+### = 1.1 =
 * French translations.
 
-= 1.0 =
+### = 1.0 =
 * WooCommerce Payment Gateway.
