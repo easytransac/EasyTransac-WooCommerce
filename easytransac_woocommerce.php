@@ -5,7 +5,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
 /**
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
- * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here</a>
+ * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here.</a> <strong>EasyTransac need Woocomerce.</strong>
  * Version: 2.4
  *
  * Text Domain: easytransac_woocommerce
@@ -46,15 +46,11 @@ function init_easytransac_gateway() {
 			$this->settings['notifurl'] = get_site_url() . '/wc-api/easytransac';
 			$this->supports = array(
 							'products',
-							'subscriptions'
-							);
+							'subscriptions',
+							'refunds'
+						);
 
 			$this->title = $this->get_option('title');
-
-			// @deprecated since version 1.3 because EasyTransac API doesn't support partial refund nor WooCommerce supports full refund only.
-			//			$this->supports = array(
-			//				'refunds'
-			//			);
 
 			// Settings save hook
 			add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -504,35 +500,40 @@ function init_easytransac_gateway() {
 		*
 		* @deprecated since version 1.3 because EasyTransac API doesn't support partial refund nor WooCommerce supports full refund only.
 		*/
-		//		public function process_refund($order_id, $amount = null, $reason = '')
-		//		{
-		//			$et_transaction_id = get_post_meta($order_id, 'ET_Tid', true);
-		//
-		//			$easytransac = new EasyTransacApi();
-		//
-		//			$data	= array('Tid' => $et_transaction_id);
-		//			$api_key = $this->get_option('api_key');
-		//
-		//			$response = $easytransac->easytransac_refund($data, $api_key);
-		//
-		//			if (empty($response))
-		//			{
-		//				return new WP_Error('easytransac-refunds', 'Empty Response');
-		//			}
-		//
-		//			if ($response['Result']['Status'] === 'refunded')
-		//			{
-		//				return true;
-		//			}
-		//		}
+		public function process_refund($order_id, $amount = null, $reason = '')
+		{
+			$order = new WC_Order($order_id);
+			$order = wc_get_order($order_id);
+
+			if ($order->get_total() != $amount) {
+				return new WP_Error('easytransac-refunds', 'EasyTransac support full refund only.');
+			}
+
+			$et_transaction_id = get_post_meta($order_id, 'ET_Tid', true);
+
+			$easytransac = new EasyTransacApi();
+		
+			$data	= array('Tid' => $et_transaction_id);
+			$api_key = $this->get_option('api_key');
+		
+			$response = $easytransac->easytransac_refund($data, $api_key);
+		
+			if (empty($response)) {
+				return new WP_Error('easytransac-refunds', 'Empty Response');
+			}
+		
+			if ($response['Result']['Status'] === 'refunded') {
+				return true;
+			}
+		}
 
 		/**
 		* Get gateway icon.
 		* @return string
 		*/
 		public function get_icon() {
-			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.jpg';
-			$icon_html = '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;" />';
+			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.png';
+			$icon_html = '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:-13px;" />';
 
 			// Injects OneClick if enabled.
 			$oneclick = $this->get_option('oneclick');
