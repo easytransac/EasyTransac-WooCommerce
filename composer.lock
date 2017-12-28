@@ -1,0 +1,46 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "706796d96d86b7a17cdce6d6203ba930",
+    "content-hash": "b8b2fd6faa1e61cc07cd06a05f0eb849",
+    "packages": [
+        {
+            "name": "easytransac/easytransac-sdk-php",
+            "version": "1.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/easytransac/easytransac-sdk-php.git",
+                "reference": "b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/easytransac/easytransac-sdk-php/zipball/b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d",
+                "reference": "b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasyTransac\\": "sdk/EasyTransac/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "A SDK to make payment with the EasyTransac API",
+            "time": "2017-11-10 10:08:01"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
