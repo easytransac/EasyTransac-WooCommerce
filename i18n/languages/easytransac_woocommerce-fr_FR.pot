@@ -114,6 +114,6 @@ msgid "Payment Gateway for EasyTransac. Create your account on <a href=\"https:/
 msgstr ""
 
 #. ('easytransac_woocommerce')
-#: easytransac_woocommerce.php:544
+#: easytransac_woocommerce.php:543
 msgid "What is EasyTransac?"
 msgstr ""
