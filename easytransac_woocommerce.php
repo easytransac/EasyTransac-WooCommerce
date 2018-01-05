@@ -29,6 +29,10 @@ function easytransac__openssl_error() {
 	printf('<div class="%1$s"><p>%2$s</p></div>', $class, $message);
 }
 
+function use_jquery() {
+	wp_enqueue_script('jquery');
+}
+
 function init_easytransac_gateway() {
 
 	class EasyTransacGateway extends WC_Payment_Gateway {
@@ -51,6 +55,9 @@ function init_easytransac_gateway() {
 						);
 
 			$this->title = $this->get_option('title');
+
+			// Settings JQuery
+			add_action('wp_enqueue_scripts', 'use_jquery');
 
 			// Settings save hook
 			add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -508,15 +515,11 @@ function init_easytransac_gateway() {
 			if ($order->get_total() != $amount) {
 				return new WP_Error('easytransac-refunds', 'EasyTransac support full refund only.');
 			}
-
-			$et_transaction_id = get_post_meta($order_id, 'ET_Tid', true);
-
-			$easytransac = new EasyTransacApi();
-		
-			$data	= array('Tid' => $et_transaction_id);
-			$api_key = $this->get_option('api_key');
-		
-			$response = $easytransac->easytransac_refund($data, $api_key);
+			$refund = (new \EasyTransac\Entities\Refund)
+				->tid(get_post_meta($order_id, 'ET_Tid', true));
+			
+			$request = new EasyTransac\Requests\PaymentRefund;
+			$response = $request->execute($refund);
 		
 			if (empty($response)) {
 				return new WP_Error('easytransac-refunds', 'Empty Response');
@@ -533,8 +536,8 @@ function init_easytransac_gateway() {
 		*/
 		public function get_icon() {
 			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.png';
-			$icon_html = '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:-13px;" />';
-
+			$icon_html = sprintf( '<br><a href="%1$s" class="about_easytransac" onclick="javascript:window.open(\'%1$s\',\'WIEasyTransac\',\'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700\'); return false;">' . esc_attr__( 'What is EasyTransac?', 'easytransac_woocommerce' ) . '</a>', esc_url('https://www.easytransac.com/fr/support'));
+			$icon_html .= '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:-26px;" />';
 			// Injects OneClick if enabled.
 			$oneclick = $this->get_option('oneclick');
 
