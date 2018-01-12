@@ -73,6 +73,7 @@ In the notification URL enter your website's URI followed by '/wc-api/easytransa
 
 = 2.5 =
 * New subscriptions possibilities
+* New refunds possibilities
 
 = 2.4 =
 * New debug mode for problem troubleshooting.
