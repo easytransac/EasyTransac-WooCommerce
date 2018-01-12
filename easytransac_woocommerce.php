@@ -509,23 +509,29 @@ function init_easytransac_gateway() {
 		*/
 		public function process_refund($order_id, $amount = null, $reason = '')
 		{
-			$order = new WC_Order($order_id);
+			EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
+			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+			$api_key = $this->get_option('api_key');
+			EasyTransac\Core\Services::getInstance()->provideAPIKey($api_key);
+
 			$order = wc_get_order($order_id);
 
 			if ($order->get_total() != $amount) {
-				return new WP_Error('easytransac-refunds', 'EasyTransac support full refund only.');
+				return new WP_Error('easytransac-refunds', __('EasyTransac support full refund only.', 'easytransac_woocommerce'));
 			}
 			$refund = (new \EasyTransac\Entities\Refund)
-				->tid(get_post_meta($order_id, 'ET_Tid', true));
+				->setTid(get_post_meta($order_id, 'ET_Tid', true));
 			
-			$request = new EasyTransac\Requests\PaymentRefund;
+			$request = (new EasyTransac\Requests\PaymentRefund);
 			$response = $request->execute($refund);
-		
+			
 			if (empty($response)) {
-				return new WP_Error('easytransac-refunds', 'Empty Response');
+				return new WP_Error('easytransac-refunds', __('Empty Response', 'easytransac_woocommerce'));
 			}
-		
-			if ($response['Result']['Status'] === 'refunded') {
+			else if (!$response->isSuccess()) {
+				return new WP_Error('easytransac-refunds', $response->getErrorMessage());
+			}
+			else {
 				return true;
 			}
 		}
