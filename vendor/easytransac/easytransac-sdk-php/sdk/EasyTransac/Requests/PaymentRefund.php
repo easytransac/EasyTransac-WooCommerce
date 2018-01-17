@@ -22,14 +22,7 @@ class PaymentRefund extends Request
     {
     	$this->requiredFields = [
     		'Tid',
-    		'Status',
-    		'Date',
-    		'Amount',
-    		'FixFees',
-    		'Message',
-    		'3DSecure',
-    		'OneClick',
-    		'Alias',
+    		'Amount'
     	];
     	
         return $this->call('/payment/refund', $entity);
