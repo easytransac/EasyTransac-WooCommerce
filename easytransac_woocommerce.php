@@ -404,7 +404,7 @@ function init_easytransac_gateway() {
 				}
 				catch (Exception $exc) {
 					// Log error
-					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getErrorCode() . ' (' . $exc->getMessage().') - ' . ($response instanceof EasyTransac\Responses\StandardResponse ? $response->getErrorMessage():''));
+					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getErrorCode() . ' (' . $exc->getMessage().') ');
 
 					error_log('EasyTransac error: ' . $exc->getMessage());
 					header('Location: ' . home_url('/'));
