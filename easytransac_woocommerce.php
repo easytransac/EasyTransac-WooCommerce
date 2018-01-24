@@ -433,9 +433,9 @@ function init_easytransac_gateway() {
 			switch ($response->getStatus()) {
 				case 'failed':
 					// Log error
-					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getErrorCode() . ' - ' . $response->getErrorMessage());
+					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getError() . ' - ' . $response->getMessage());
 
-					$order->update_status('failed', $response->getMessage());
+                    $order->update_status('failed', $response->getMessage());
 					wc_add_notice(__('Payment error:', 'easytransac_woocommerce') . $response->getMessage(), 'error');
 				break;
 
