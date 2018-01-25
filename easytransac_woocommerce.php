@@ -163,7 +163,7 @@ function init_easytransac_gateway() {
 			}
 
 			// If OneClick button has been clicked && the ,order isn't a subscription order.
-			$is_oneclick = isset($_POST['is_oneclick']) && !empty($_POST['oneclick_alias']) && !wcs_order_contains_subscription($order);
+			$is_oneclick = isset($_POST['is_oneclick']) && !empty($_POST['oneclick_alias']) && (!function_exists('wcs_order_contains_subscription') || !wcs_order_contains_subscription($order));
 
 			$api_key = $this->get_option('api_key');
 			$dsecure3 = $this->get_option('3dsecure');
