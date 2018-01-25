@@ -255,7 +255,7 @@ function init_easytransac_gateway() {
 					->setPhone($address['phone']);
 
 				// If the order contain subscription product
-				if (wcs_order_contains_subscription($order)) {
+				if (function_exists('wcs_order_contains_subscription') && wcs_order_contains_subscription($order)) {
 					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
 						->setRebill('yes')
 						->setDownPayment(100 * $order->get_total())
