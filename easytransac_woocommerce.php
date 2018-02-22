@@ -395,6 +395,8 @@ function init_easytransac_gateway() {
 
 			$is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
+			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($_POST, true));
+
 			if($is_https || (!$is_https && !empty($received_data))) {
 				// FIX : HTTPS return or notification + HTTP api call
 				try {
@@ -411,7 +413,6 @@ function init_easytransac_gateway() {
 					die;
 				}
 			}
-			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($_POST, true));
 
 			// On non-HTTPS sites, simply redirects and wait for the notification the update the status.
 			if (empty($received_data) && !$is_https) {
