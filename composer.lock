@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "706796d96d86b7a17cdce6d6203ba930",
     "content-hash": "b8b2fd6faa1e61cc07cd06a05f0eb849",
     "packages": [
         {
             "name": "easytransac/easytransac-sdk-php",
-            "version": "1.0.10",
+            "version": "1.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/easytransac/easytransac-sdk-php.git",
-                "reference": "b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d"
+                "reference": "a29f77e15184525525b3b8e9bea837c181287d14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/easytransac/easytransac-sdk-php/zipball/b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d",
-                "reference": "b537ff1bec3f8b8ae7658f9fe2eddd43484cab9d",
+                "url": "https://api.github.com/repos/easytransac/easytransac-sdk-php/zipball/a29f77e15184525525b3b8e9bea837c181287d14",
+                "reference": "a29f77e15184525525b3b8e9bea837c181287d14",
                 "shasum": ""
             },
             "require": {
@@ -32,7 +31,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "A SDK to make payment with the EasyTransac API",
-            "time": "2017-11-10 10:08:01"
+            "time": "2018-02-12T10:58:57+00:00"
         }
     ],
     "packages-dev": [],
