@@ -6,7 +6,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
  * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here.</a> <strong>EasyTransac need Woocomerce.</strong>
- * Version: 2.4
+ * Version: 2.5
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
@@ -142,8 +142,17 @@ function init_easytransac_gateway() {
 		* @param int $order_id
 		*/
 		function process_payment($order_id) {
-			$order = new WC_Order($order_id);
+			
 			$order = wc_get_order( $order_id );
+			
+			if (!$order) {
+				// Payment failed : Show error to end user.
+				wc_add_notice(__('Payment failed: ', 'easytransac_woocommerce') . 'order not found', 'error');
+
+				return array(
+					'result' => 'error',
+				);
+			}
 
 			$total_subscription = 0;
 			// Iterating through each "line" items in the order
@@ -162,7 +171,7 @@ function init_easytransac_gateway() {
 				}
 			}
 
-			// If OneClick button has been clicked && the ,order isn't a subscription order.
+			// If OneClick button has been clicked && the order isn't a subscription order.
 			$is_oneclick = isset($_POST['is_oneclick']) && !empty($_POST['oneclick_alias']) && (!function_exists('wcs_order_contains_subscription') || !wcs_order_contains_subscription($order));
 
 			$api_key = $this->get_option('api_key');
@@ -178,12 +187,12 @@ function init_easytransac_gateway() {
 			$openssl_info_string = OPENSSL_VERSION_NUMBER >= 0x10001000 ? 'TLSv1.2' : 'OpenSSL version deprecated';
 			$https_info_string = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'S' : '';
 
-			$version_string = sprintf('WooCommerce 2.4 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
+			$version_string = sprintf('WooCommerce 2.5 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
 			$language = get_locale() == 'fr_FR' ? 'FRE' : 'ENG';
 
 			// If Debug Mode is enabled
 			EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
-			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR);
 
 			EasyTransac\Core\Services::getInstance()->provideAPIKey($api_key);
 
@@ -254,7 +263,7 @@ function init_easytransac_gateway() {
 					->setCallingCode('')
 					->setPhone($address['phone']);
 
-				// If the order contain subscription product
+				// If the order contains a subscription product.
 				if (function_exists('wcs_order_contains_subscription') && wcs_order_contains_subscription($order)) {
 					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
 						->setRebill('yes')
@@ -268,25 +277,25 @@ function init_easytransac_gateway() {
 						->setVersion($version_string)
 						->setLanguage($language);
 
-						switch ($product_subscription) {
-							case 'day':
-								$transaction->setRecurrence('daily');
-							break;
-							case 'week':
-								$transaction->setRecurrence('weekly');
-							break;
-							case 'month':
-								$transaction->setRecurrence('monthly');
-							break;
-							case 'year':
-								$transaction->setRecurrence('yearly');
-							break;
-							case '':
-								$transaction->setRecurrence('monthly');
-							break;
-						}
+					switch ($product_subscription) {
+						case 'day':
+							$transaction->setRecurrence('daily');
+						break;
+						case 'week':
+							$transaction->setRecurrence('weekly');
+						break;
+						case 'month':
+							$transaction->setRecurrence('monthly');
+						break;
+						case 'year':
+							$transaction->setRecurrence('yearly');
+						break;
+						case '':
+							$transaction->setRecurrence('monthly');
+						break;
+					}
 				} else {
-					// If the order contain only "normal" products
+					// If the order contains only "normal" products.
 					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
 						->setAmount(100 * $order->get_total())
 						->setCustomer($customer)
@@ -297,10 +306,10 @@ function init_easytransac_gateway() {
 						->setVersion($version_string)
 						->setLanguage($language);
 				}
-				$request = new EasyTransac\Requests\PaymentPage();
 
 				/* @var $response \EasyTransac\Entities\PaymentPageInfos */
 				try {
+					$request = new EasyTransac\Requests\PaymentPage();
 					$response = $request->execute($transaction);
 				}
 				catch (Exception $exc) {
@@ -377,7 +386,7 @@ function init_easytransac_gateway() {
 		*/
 		function check_callback_response() {
 			EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
-			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR);
 
 			// OneClick handlers.
 			if (isset($_GET['listcards'])) {
@@ -395,20 +404,20 @@ function init_easytransac_gateway() {
 
 			$is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
-			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($_POST, true));
-
+			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($received_data, true));
+			
 			if($is_https || (!$is_https && !empty($received_data))) {
 				// FIX : HTTPS return or notification + HTTP api call
 				try {
-					$response = \EasyTransac\Core\PaymentNotification::getContent($_POST, $api_key);
+					$response = \EasyTransac\Core\PaymentNotification::getContent($received_data, $api_key);
 
 					if(!$response) throw new Exception ('empty response');
 				}
 				catch (Exception $exc) {
 					// Log error
-					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getErrorCode() . ' (' . $exc->getMessage().') ');
+					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
 
-					error_log('EasyTransac error: ' . $exc->getMessage());
+					error_log('EasyTransac error: ' . $exc->getMessage().' debug: '.$this->get_option('debug_mode'));
 					header('Location: ' . home_url('/'));
 					die;
 				}
@@ -433,9 +442,7 @@ function init_easytransac_gateway() {
 
 			switch ($response->getStatus()) {
 				case 'failed':
-					// Log error
 					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getError() . ' - ' . $response->getMessage());
-
                     $order->update_status('failed', $response->getMessage());
 					wc_add_notice(__('Payment error:', 'easytransac_woocommerce') . $response->getMessage(), 'error');
 				break;
@@ -511,7 +518,7 @@ function init_easytransac_gateway() {
 		public function process_refund($order_id, $amount = null, $reason = '')
 		{
 			EasyTransac\Core\Logger::getInstance()->setActive($this->get_option('debug_mode')=='yes');
-			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . '/logs/');
+			EasyTransac\Core\Logger::getInstance()->setFilePath(__DIR__ . DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR);
 			$api_key = $this->get_option('api_key');
 			EasyTransac\Core\Services::getInstance()->provideAPIKey($api_key);
 
@@ -521,8 +528,8 @@ function init_easytransac_gateway() {
 				return new WP_Error('easytransac-refunds', __('EasyTransac support full refund only.', 'easytransac_woocommerce'));
 			}
 			$refund = (new \EasyTransac\Entities\Refund)
-				->setTid(get_post_meta($order_id, 'ET_Tid', true));
-			
+					->setTid(get_post_meta($order_id, 'ET_Tid', true));
+
 			$request = (new EasyTransac\Requests\PaymentRefund);
 			$response = $request->execute($refund);
 			
@@ -570,5 +577,4 @@ function add_easytransac_gateway($methods) {
 add_filter('woocommerce_payment_gateways', 'add_easytransac_gateway');
 
 // Internationalization
-load_plugin_textdomain('easytransac_woocommerce', false, dirname(plugin_basename(__FILE__)) . '/i18n/languages/');
-?>
+load_plugin_textdomain('easytransac_woocommerce', false, dirname(plugin_basename(__FILE__)) . DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'languages'.DIRECTORY_SEPARATOR);
