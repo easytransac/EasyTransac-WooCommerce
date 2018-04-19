@@ -249,6 +249,14 @@ function init_easytransac_gateway() {
 						);
 				}
 			} else {
+				// Phone number traitement of '+'
+				if (!preg_match("/^[0-9]{7,15}$/", $address['phone'])) {
+					$address['phone'] = str_replace("+", "00", $address['phone']);                                                                                                              
+					if (!preg_match("/^[0-9]{7,15}$/", $address['phone'])) {
+						return wc_add_notice(__('Téléphone  de facturation n’est pas un numéro de téléphone valide.', 'easytransac_woocommerce'), 'error');                                 
+					}
+				}
+
 				// SDK Payment Page
 				$customer = (new EasyTransac\Entities\Customer())
 					->setEmail($address['email'])

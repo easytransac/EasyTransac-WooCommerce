@@ -77,3 +77,6 @@ flycheck_*.el
 /server/
 .projectile
 .dir-locals.el
+vendor/easytransac/easytransac-sdk-php/docs/*
+vendor/easytransac/easytransac-sdk-php/samples/*
+vendor/easytransac/easytransac-sdk-php/tests/*
