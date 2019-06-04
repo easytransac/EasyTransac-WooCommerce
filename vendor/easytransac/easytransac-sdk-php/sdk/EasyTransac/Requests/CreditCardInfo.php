@@ -5,13 +5,13 @@ namespace EasyTransac\Requests;
 use \EasyTransac\Entities\Entity;
 
 /**
- * API function /payment/addcard, add a credit card
+ * API function /payment/cardinfos, get info from a credit card
  * @author Klyde
  * @copyright EasyTransac
  */
-class AddCreditCard extends Request
+class CreditCardInfo extends Request
 {
-    /** @object:CreditCard **/
+    /** @object:CreditCardInfo **/
     protected $response;
 
     /**
@@ -21,7 +21,7 @@ class AddCreditCard extends Request
      */
     public function execute(Entity $entity)
     {
-        return $this->call('/payment/addcard', $entity);
+        return $this->call('/payment/cardinfos', $entity);
     }
 }
 

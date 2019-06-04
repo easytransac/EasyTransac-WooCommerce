@@ -5,13 +5,13 @@ namespace EasyTransac\Requests;
 use \EasyTransac\Entities\Entity;
 
 /**
- * API function /payment/addcard, add a credit card
+ * API function /client/payout/list, find all bank transfers from a customer
  * @author Klyde
  * @copyright EasyTransac
  */
-class AddCreditCard extends Request
+class BankTransfersList extends Request
 {
-    /** @object:CreditCard **/
+    /** @object:BankTransfersList **/
     protected $response;
 
     /**
@@ -21,7 +21,7 @@ class AddCreditCard extends Request
      */
     public function execute(Entity $entity)
     {
-        return $this->call('/payment/addcard', $entity);
+        return $this->call('/client/payout/list', $entity);
     }
 }
 

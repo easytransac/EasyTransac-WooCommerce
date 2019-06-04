@@ -72,6 +72,14 @@ msgstr ""
 msgid "EasyTransac online payment service"
 msgstr "EasyTransac, service de paiement en ligne"
 
+#: easytransac_woocommerce.php:568
+msgid "Choose a card:"
+msgstr "Choisissez une carte de paiement :"
+
+#: easytransac_woocommerce.php:570
+msgid "Pay now"
+msgstr "Payer maintenant"
+
 #. Plugin URI of the plugin/theme
 msgid "https://www.easytransac.com"
 msgstr "https://www.easytransac.com"

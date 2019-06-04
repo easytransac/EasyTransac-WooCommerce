@@ -5,13 +5,13 @@ namespace EasyTransac\Requests;
 use \EasyTransac\Entities\Entity;
 
 /**
- * API function /payment/refund, asks for a refund
+ * API function /payment/cancel, asks for the cancellation of a payment page 
  * @author Klyde
  * @copyright EasyTransac
  */
-class PaymentRefund extends Request
+class PaymentPageCancellation extends Request
 {
-    /** @object:PaymentPageInfos **/
+    /** @object:PaymentPageCancellationInfos **/
     protected $response;
 
     /**
@@ -20,7 +20,7 @@ class PaymentRefund extends Request
      */
     public function execute(Entity $entity)
     {
-        return $this->call('/payment/refund', $entity);
+        return $this->call('/payment/cancelpage', $entity);
     }
 }
 

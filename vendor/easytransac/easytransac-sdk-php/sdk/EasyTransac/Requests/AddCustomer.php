@@ -5,13 +5,13 @@ namespace EasyTransac\Requests;
 use \EasyTransac\Entities\Entity;
 
 /**
- * API function /payment/refund, asks for a refund
+ * API function /client/add, add a new customer
  * @author Klyde
  * @copyright EasyTransac
  */
-class PaymentRefund extends Request
+class AddCustomer extends Request
 {
-    /** @object:PaymentPageInfos **/
+    /** @object:CustomerInfos **/
     protected $response;
 
     /**
@@ -20,7 +20,7 @@ class PaymentRefund extends Request
      */
     public function execute(Entity $entity)
     {
-        return $this->call('/payment/refund', $entity);
+        return $this->call('/client/add', $entity);
     }
 }
 
