@@ -6,7 +6,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
  * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here.</a> <strong>EasyTransac need Woocomerce.</strong>
- * Version: 2.5
+ * Version: 2.8
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
@@ -373,7 +373,8 @@ function init_easytransac_gateway() {
 				$buffer = array();
 				foreach ($response->getContent()->getCreditCards() as $cc) {
 					/* @var $cc EasyTransac\Entities\CreditCard */
-					$buffer[] = array('Alias' => $cc->getAlias(), 'CardNumber' => $cc->getNumber());
+					$year = substr($cc->getYear(), -2, 2);
+					$buffer[] = array('Alias' => $cc->getAlias(), 'CardNumber' => $cc->getNumber(), 'Month' => $cc->getMonth(), 'Year' => $year);
 				}
 				$output = array('status' => !empty($buffer), 'packet' => $buffer);
 				echo json_encode($output);
@@ -559,18 +560,19 @@ function init_easytransac_gateway() {
 		public function get_icon() {
 			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.png';
 			$icon_html = sprintf( '<br><a href="%1$s" class="about_easytransac" onclick="javascript:window.open(\'%1$s\',\'WIEasyTransac\',\'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700\'); return false;">' . esc_attr__( 'What is EasyTransac?', 'easytransac_woocommerce' ) . '</a>', esc_url('https://www.easytransac.com/fr/support'));
-			$icon_html .= '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:-26px;" />';
+			$icon_html .= '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:55px;" />';
 			// Injects OneClick if enabled.
 			$oneclick = $this->get_option('oneclick');
-
 			if($oneclick == 'yes')
+				$icon_html .= '<script type="text/javascript">var chooseCard = "';
+				$icon_html .= __('Choose a card:', 'easytransac_woocommerce');
+				$icon_html .= '"; var payNow = "';
+				$icon_html .= __('Pay now', 'easytransac_woocommerce') . '";</script>"'; 
 				$icon_html .= '<script type="text/javascript" src="' . plugin_dir_url(__FILE__) . '/includes/oneclick.js"></script>';
 
 			return apply_filters('woocommerce_gateway_icon', $icon_html, $this->id);
 		}
-
 	}
-
 }
 
 // Load plugin

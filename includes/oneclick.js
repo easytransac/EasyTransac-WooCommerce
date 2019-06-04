@@ -38,17 +38,26 @@ jQuery(function($) {
         var _space = $('#' + session_id);
 
         // Label
-        _space.append($('<span style="width:100px;" title="Direct credit card payment">OneClick : </span>'));
+        var label = $('<span style="width:100px;" title="Direct credit card payment"></span>');
+        if (typeof(chooseCard) !==  'undefined') {
+            label[0].innerHTML = chooseCard;
+        }
+        _space.append(label);
 
         // Dropdown
         _space.append($('<select id="etalcadd001" name="oneclick_alias" style="width:90%; margin-left:5%;">'));
         $.each(json.packet, function(i, row) {
+            console.log(row);
             $('#etalcadd001')
-                .append($('<option value="' + row.Alias + '">' + row.CardNumber + '</option>'));
+                .append($('<option value="' + row.Alias + '">' + row.CardNumber + ' ' + row.Month + '/' + row.Year + '</option>'));
         });
 
         // Button
-        _space.append($(' <input type="submit" id="etocbu001" class="button alt" style="width:90%; margin-left:5%; margin-top: 15px;" value="OneClick Pay">'));
+        var button = $(' <input type="submit" id="etocbu001" class="button alt" style="width:90%; margin-left:5%; margin-top: 15px;" value="OneClick Pay">');
+        if (typeof(payNow) !== 'undefined') {
+            button[0].value = payNow; 
+        }
+        _space.append(button);
 
         // Button click/*
         $('#etocbu001').click(function(e) {
