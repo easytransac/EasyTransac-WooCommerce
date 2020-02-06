@@ -561,16 +561,16 @@ function init_easytransac_gateway() {
 			$icon_url = plugin_dir_url(__FILE__) . '/includes/icon.png';
 			$icon_html = "<script type=\"text/javascript\">function usingGateway(){console.log(jQuery(\"input[name='payment_method']:checked\").val()),\"easytransac\"==jQuery('form[name=\"checkout\"] input[name=\"payment_method\"]:checked').val()?document.getElementById(\"easytransac-icon\").style.visibility=\"visible\":document.getElementById(\"easytransac-icon\").style.visibility=\"hidden\"}jQuery(function(){jQuery(\"body\").on(\"updated_checkout\",function(){usingGateway(),jQuery('input[name=\"payment_method\"]').change(function(){console.log(\"payment method changed\"),usingGateway()})})});</script>";
 			$icon_html .= sprintf( '<br><a href="%1$s" class="about_easytransac" onclick="javascript:window.open(\'%1$s\',\'WIEasyTransac\',\'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700\'); return false;">' . esc_attr__( 'What is EasyTransac?', 'easytransac_woocommerce' ) . '</a>', esc_url('https://www.easytransac.com/fr/support'));
-			$icon_html .= '<img src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:55px;" />';
+			$icon_html .= '<img id="easytransac-icon" src="' . esc_attr($icon_url) . '" alt="' . esc_attr__('EasyTransac', 'easytransac_woocommerce') . '" style="max-height:52px;display:inline-block;margin-top:55px;" />';
 			// Injects OneClick if enabled.
 			$oneclick = $this->get_option('oneclick');
-			if($oneclick == 'yes')
+			if($oneclick == 'yes') {
 				$icon_html .= '<script type="text/javascript">var chooseCard = "';
 				$icon_html .= __('Choose a card:', 'easytransac_woocommerce');
 				$icon_html .= '"; var payNow = "';
-				$icon_html .= __('Pay now', 'easytransac_woocommerce') . '";</script>"'; 
+				$icon_html .= __('Pay now', 'easytransac_woocommerce') . '";</script>';
 				$icon_html .= '<script type="text/javascript" src="' . plugin_dir_url(__FILE__) . '/includes/oneclick.js"></script>';
-
+			}
 			return apply_filters('woocommerce_gateway_icon', $icon_html, $this->id);
 		}
 	}
