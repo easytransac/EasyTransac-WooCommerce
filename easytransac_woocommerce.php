@@ -6,7 +6,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
  * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here.</a> <strong>EasyTransac need Woocomerce.</strong>
- * Version: 2.10
+ * Version: 2.11
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
@@ -34,6 +34,8 @@ function use_jquery() {
 }
 
 function init_easytransac_gateway() {
+
+	if(!class_exists('WC_Payment_Gateway')) return;
 
 	class EasyTransacGateway extends WC_Payment_Gateway {
 
@@ -157,18 +159,51 @@ function init_easytransac_gateway() {
 			$total_subscription = 0;
 			// Iterating through each "line" items in the order
 			// Count the total price of subscription product
+			$subscriptions_counter = 0;
 			foreach ($order->get_items() as $item_id => $item_data) {
 
 				// Get an instance of corresponding the WC_Product object
 				$product = $item_data->get_product();
 				$product_type = $product->get_type(); // Get the type of product
+				$item_quantity = $item_data->get_quantity(); // Get the item quantity
 				$item_total = $item_data->get_total(); // Get the item line total
 
 				// If the product is a subscription product, add to the total
 				if ($product_type == 'subscription') {
 					$total_subscription += $item_total;
 					$product_subscription = WC_Subscriptions_Product::get_period($product);
+
+					// print_r($product_subscription);
+					// echo "\r\n - Price:";
+					// print_r(WC_Subscriptions_Product::get_price($product));
+					// echo "\r\n -  Regular price: ";
+					// print_r(WC_Subscriptions_Product::get_regular_price($product));
+					// echo "\r\n - Sale price:";
+					// print_r(WC_Subscriptions_Product::get_sale_price($product));
+					// echo "\r\n";
+					// echo "\r\n - Length:";
+					// print_r(WC_Subscriptions_Product::get_length($product));
+					// echo "\r\n";
+					// echo "\r\n - Sign up fee:";
+					// print_r(WC_Subscriptions_Product::get_sign_up_fee($product));
+					$subscriptions_counter += $item_quantity;
+					
+					if(WC_Subscriptions_Product::get_trial_length($product) >0)
+					{
+						wc_add_notice(__('Payment failed: ', 'easytransac_woocommerce') . 'free trial not handled', 'error');
+						return array(
+							'result' => 'error',
+						);
+					}
 				}
+			}
+
+			if($subscriptions_counter > 1)
+			{
+				wc_add_notice(__('Payment failed: ', 'easytransac_woocommerce') . 'only one subscription handled', 'error');
+				return array(
+					'result' => 'error',
+				);
 			}
 
 			// If OneClick button has been clicked && the order isn't a subscription order.
@@ -273,10 +308,9 @@ function init_easytransac_gateway() {
 
 				// If the order contains a subscription product.
 				if (function_exists('wcs_order_contains_subscription') && wcs_order_contains_subscription($order)) {
+
 					$transaction = (new EasyTransac\Entities\PaymentPageTransaction())
-						->setRebill('yes')
-						->setDownPayment(100 * $order->get_total())
-						->setAmount(100 * $total_subscription)
+						->setRebill(WC_Subscriptions_Product::get_length($product) == 0 ? 'yes' : 'no')// If expire date is never (0) = yes
 						->setCustomer($customer)
 						->setOrderId($order_id)
 						->setReturnUrl($return_url)
@@ -284,6 +318,29 @@ function init_easytransac_gateway() {
 						->setSecure($dsecure3)
 						->setVersion($version_string)
 						->setLanguage($language);
+
+					if(WC_Subscriptions_Product::get_length($product) > 0)
+					{
+						$transaction->setMultiplePayments(WC_Subscriptions_Product::get_length($product) > 0 ? 'yes' : 'no');// If expire date is a number (value>0) of days = yes
+
+						if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
+						{
+							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product) + (100 * WC_Subscriptions_Product::get_sign_up_fee($product)));// Whole amount[]
+						}
+
+						$transaction->setMultiplePaymentsRepeat(WC_Subscriptions_Product::get_length($product));
+					}
+					else
+					{
+						$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product));// Amount per period
+					}
+
+					if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
+					{
+
+						$transaction->setDownPayment(100 * (WC_Subscriptions_Product::get_price($product) + WC_Subscriptions_Product::get_sign_up_fee($product)));// Subscription fee added on firstpayment
+					}
+
 
 					switch ($product_subscription) {
 						case 'day':
@@ -360,8 +417,8 @@ function init_easytransac_gateway() {
 		*/
 		function listcards() {
 			$clientId = $this->getClientId();
-			if (!$clientId)
-			die(json_encode(array()));
+			if (!$clientId || empty($clientId))
+				die(json_encode(array()));
 
 			EasyTransac\Core\Services::getInstance()->provideAPIKey($this->get_option('api_key'));
 			$customer = (new EasyTransac\Entities\Customer())->setClientId($clientId);
@@ -413,6 +470,9 @@ function init_easytransac_gateway() {
 
 			$is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
+			if(isset($received_data['data']))
+				unset($received_data['data']);
+			
 			EasyTransac\Core\Logger::getInstance()->write('Received POST: ' . var_export($received_data, true));
 			
 			if($is_https || (!$is_https && !empty($received_data))) {
