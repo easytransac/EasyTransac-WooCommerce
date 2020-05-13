@@ -47,7 +47,6 @@ jQuery(function($) {
         // Dropdown
         _space.append($('<select id="etalcadd001" name="oneclick_alias" style="width:90%; margin-left:5%;">'));
         $.each(json.packet, function(i, row) {
-            console.log(row);
             $('#etalcadd001')
                 .append($('<option value="' + row.Alias + '">' + row.CardNumber + ' ' + row.Month + '/' + row.Year + '</option>'));
         });

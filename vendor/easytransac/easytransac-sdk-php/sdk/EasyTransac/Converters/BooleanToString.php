@@ -1,6 +1,7 @@
 <?php 
 
 namespace EasyTransac\Converters;
+use \EasyTransac\Converters\IConverter;
 
 /**
  * Convert boolean vals in String vals (yes, no)

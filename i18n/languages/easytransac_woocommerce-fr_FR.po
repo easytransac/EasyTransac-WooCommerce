@@ -2,455 +2,143 @@
 # This file is distributed under the same license as the Plugins - EasyTransac for WooCommerce - Development (trunk) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-04-24 14:07+0200\n"
+"PO-Revision-Date: 2020-04-28 12:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Poedit 2.0.5\n"
-"Language: fr\n"
-"POT-Creation-Date: \n"
-"Last-Translator: Maxime Killinger\n"
-"Language-Team: France\n"
+"X-Generator: Loco https://localise.biz/\n"
+"Language: fr_FR\n"
+"POT-Creation-Date: 2020-04-28 12:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: Français\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"X-Loco-Version: 2.3.3; wp-5.4"
 
-#: easytransac_woocommerce.php:256
-msgid "Billing phone is not valid phone number."
-msgstr "Le numéro de téléphone de facturation n’est pas valide."
-
-#: easytransac_woocommerce.php:561
-msgid "What is EasyTransac?"
-msgstr "Qu'est ce qu'EasyTransac ?"
-
-#: easytransac_woocommerce.php:545
-msgid "Empty Response"
-msgstr "Réponse vide"
-
-#: easytransac_woocommerce.php:536
-msgid "EasyTransac support full refund only."
-msgstr "EasyTransac ne supporte que les remboursements complets."
-
-#: easytransac_woocommerce.php:124 easytransac_woocommerce.php:126
-msgid "Enable/Disable debug mode"
-msgstr "Activer/Désactiver le mode de debug"
-
-#: easytransac_woocommerce.php:114
-msgid "Enable One Click payments"
-msgstr "Activer les paiements One Click"
-
-#: easytransac_woocommerce.php:112
-msgid "Enable/Disable One Click payments"
-msgstr "Activer/Désactiver les paiemnts One Click"
-
-#: easytransac_woocommerce.php:150 easytransac_woocommerce.php:234
-#: easytransac_woocommerce.php:245
-msgid "Payment failed: "
-msgstr "Le paiement à échoué : "
-
-#: easytransac_woocommerce.php:118
-msgid "Notification URL"
-msgstr "URL de Notification"
-
-#. Description of the plugin/theme
-msgid ""
-"Payment Gateway for EasyTransac. Create your account on <a href=\"https://"
-"www.easytransac.com\">www.easytransac.com</a> to get your application key "
-"(API key) by following the steps on <a href=\"https://fr.wordpress.org/"
-"plugins/easytransac/installation/\">the installation guide</a> and configure "
-"this plugin <a href=\"../wp-admin/admin.php?page=wc-"
-"settings&tab=checkout&section=easytransacgateway\">here.</a> "
-"<strong>EasyTransac need Woocomerce.</strong>"
-msgstr ""
-"Plateforme de paiement pour EasyTransac. Créez votre compte sur <a href="
-"\"https://www.easytransac.com\">www.easytransac.com</a> pour obtenir votre "
-"clé d'API en suivant les étapes du <a href=\"https://fr.wordpress.org/"
-"plugins/easytransac/installation/\">guide d'installation</a> et configurer "
-"le plugin <a href=\"../wp-admin/admin.php?page=wc-"
-"settings&tab=checkout&section=easytransacgateway\">ici.</a> "
-"<strong>EasyTransac à besoin de WooCommerce.</strong>"
-
-#: easytransac_woocommerce.php:46
+#: easytransac_woocommerce.php:48
 msgid "EasyTransac online payment service"
 msgstr "EasyTransac, service de paiement en ligne"
 
-#: easytransac_woocommerce.php:568
+#: easytransac_woocommerce.php:49
+msgid "Pay with your credit card."
+msgstr "Payez avec votre carte bancaire."
+
+#: easytransac_woocommerce.php:87
+msgid "Enable/Disable"
+msgstr "Activer/Désactiver"
+
+#: easytransac_woocommerce.php:89
+msgid "Enable EasyTransac payment"
+msgstr "Activer les paiements via EasyTransac"
+
+#: easytransac_woocommerce.php:93
+msgid "Title"
+msgstr "Titre"
+
+#: easytransac_woocommerce.php:95
+msgid "This controls the title which the user sees during checkout."
+msgstr "Ceci contrôle le titre que l'utilisateur voit lors du paiement."
+
+#: easytransac_woocommerce.php:96 easytransac_woocommerce.php:633
+msgid "EasyTransac"
+msgstr "EasyTransac"
+
+#: easytransac_woocommerce.php:100
+msgid "API Key"
+msgstr "Clé d'API"
+
+#: easytransac_woocommerce.php:102
+msgid "Your EasyTransac application API Key."
+msgstr "Votre clé d'API EasyTransac."
+
+#: easytransac_woocommerce.php:108
+msgid "Enable/Disable 3D Secure payments"
+msgstr "Activer/Désactiver les paiements 3D Secure"
+
+#: easytransac_woocommerce.php:110
+msgid "Enable 3D Secure"
+msgstr "Activer le 3D Secure"
+
+#: easytransac_woocommerce.php:114
+msgid "Enable/Disable One Click payments"
+msgstr "Activer/Désactiver les paiemnts One Click"
+
+#: easytransac_woocommerce.php:116
+msgid "Enable One Click payments"
+msgstr "Activer les paiements One Click"
+
+#: easytransac_woocommerce.php:120
+msgid "Disable order stock level reduce"
+msgstr "Désactiver la réduction des stocks"
+
+#: easytransac_woocommerce.php:122
+msgid "Makes orders not reduce stock level"
+msgstr ""
+"Désactive la réduction des stocks d'une commande payée avec EasyTransac."
+
+#: easytransac_woocommerce.php:126
+msgid "Notification URL"
+msgstr "URL de Notification"
+
+#: easytransac_woocommerce.php:132 easytransac_woocommerce.php:134
+msgid "Enable/Disable debug mode"
+msgstr "Activer/Désactiver le mode de debug"
+
+#: easytransac_woocommerce.php:158 easytransac_woocommerce.php:199
+#: easytransac_woocommerce.php:209 easytransac_woocommerce.php:275
+#: easytransac_woocommerce.php:286
+msgid "Payment failed: "
+msgstr "Le paiement à échoué : "
+
+#: easytransac_woocommerce.php:297
+msgid "Billing phone is not valid phone number."
+msgstr "Le numéro de téléphone de facturation n’est pas valide."
+
+#: easytransac_woocommerce.php:398 easytransac_woocommerce.php:525
+msgid "Payment error:"
+msgstr "Erreur de paiement :"
+
+#: easytransac_woocommerce.php:606
+msgid "EasyTransac support full refund only."
+msgstr "EasyTransac ne supporte que les remboursements complets."
+
+#: easytransac_woocommerce.php:615
+msgid "Empty Response"
+msgstr "Réponse vide"
+
+#: easytransac_woocommerce.php:632
+msgid "What is EasyTransac?"
+msgstr "Qu'est ce qu'EasyTransac ?"
+
+#: easytransac_woocommerce.php:638
 msgid "Choose a card:"
 msgstr "Choisissez une carte de paiement :"
 
-#: easytransac_woocommerce.php:570
+#: easytransac_woocommerce.php:640
 msgid "Pay now"
 msgstr "Payer maintenant"
-
-#. Plugin URI of the plugin/theme
-msgid "https://www.easytransac.com"
-msgstr "https://www.easytransac.com"
 
 #. Plugin Name of the plugin/theme
 msgid "EasyTransac for WooCommerce"
 msgstr "EasyTransac pour WooCommerce"
 
-#: easytransac_woocommerce.php:335 easytransac_woocommerce.php:455
-msgid "Payment error:"
-msgstr "Erreur de paiement :"
-
-#: easytransac_woocommerce.php:108
-msgid "Enable 3D Secure"
-msgstr "Activer le 3D Secure"
-
-#: easytransac_woocommerce.php:106
-msgid "Enable/Disable 3D Secure payments"
-msgstr "Activer/Désactiver les paiements 3D Secure"
-
-#: easytransac_woocommerce.php:100
-msgid "Your EasyTransac application API Key."
-msgstr "Votre clé d'API EasyTransac."
-
-#: easytransac_woocommerce.php:98
-msgid "API Key"
-msgstr "Clé d'API"
-
-#: easytransac_woocommerce.php:94 easytransac_woocommerce.php:562
-msgid "EasyTransac"
-msgstr "EasyTransac"
-
-#: easytransac_woocommerce.php:93
-msgid "This controls the title which the user sees during checkout."
-msgstr "Ceci contrôle le titre que l'utilisateur voit lors du paiement."
-
-#: easytransac_woocommerce.php:91
-msgid "Title"
-msgstr "Titre"
-
-#: easytransac_woocommerce.php:87
-msgid "Enable EasyTransac payment"
-msgstr "Activer les paiements via EasyTransac"
-
-#: easytransac_woocommerce.php:85
-msgid "Enable/Disable"
-msgstr "Activer/Désactiver"
-
-#: easytransac_woocommerce.php:47
-msgid "Pay with your credit card."
-msgstr "Payez avec votre carte bancaire."
-
-#. Short description.
-msgid "EasyTransac payment gateway for WooCommerce."
-msgstr "EasyTransac, plateforme de paiement pour WooCommerce."
-
-#. Found in changelog list item.
-msgid "Telephone number validation"
-msgstr "Validation du numéro de téléphone"
-
-#. Found in changelog list item.
-msgid "Notification wordpress magic quotes bugfix"
-msgstr "Correction de Notification WordPress Magic Quotes"
-
-#. Found in changelog list item.
-msgid "Other than unix environment support"
-msgstr "Support autre que l'environnement Unix"
-
-#. Found in changelog list item.
-msgid "EasyTransac SDK update to v1.0.11"
-msgstr "Mise à jour du SDK EasyTransac à v1.0.11"
-
-#. Found in changelog list item.
-msgid "New refunds possibilities"
-msgstr "Nouvelle possibilité de remboursement"
-
-#. Found in changelog list item.
-msgid "New subscriptions possibilities"
-msgstr "Nouvelle possibilité d'abonnement"
-
-#. Found in changelog list item.
-msgid "New debug mode for problem troubleshooting."
-msgstr "Nouveau mode debug pour déboguage."
-
-#. Found in changelog list item.
-msgid "EasyTransac SDK update to v1.0.10"
-msgstr "Mise à jour du SDK EasyTransac à v1.0.10"
-
-#. Found in changelog list item.
-msgid "HTTP notification issue fix for HTTP only websites."
-msgstr ""
-"Correctif de problème de notification HTTP pour les sites Web HTTP en "
-"uniquement."
-
-#. Found in changelog list item.
-msgid "WooCommerce v3 compatibility."
-msgstr "Compatibilité avec WooCommerce v3."
-
-#. Found in description list item.
-msgid "Works on WooCommerce v2.8 and v3+"
-msgstr "Fonctionne sur WooCommerce v2.8 et v3+"
-
-#. Found in changelog list item.
-msgid "OneClick can be disabled."
-msgstr "One Click peut être désactiver."
-
-#. Found in faq header.
-msgid "Installation Instructions"
-msgstr "Instructions d'installation"
-
-#. Found in description list item.
-msgid "PHP &gt;= 5.5"
-msgstr "PHP &gt;= 5.5"
-
-#. Found in description list item.
-msgid "OpenSSL version 1.0.1"
-msgstr "OpenSSL version 1.0.1"
-
-#. Found in installation list item, faq list item.
+#. Description of the plugin
 msgid ""
-"You also get the key on this page that you need to paste on the WooCommerce "
-"payment gateway configuration page (Step 8)."
+"Payment Gateway for EasyTransac. Create your account on <a href=\"https:"
+"//www.easytransac.com\">www.easytransac.com</a> to get your application key "
+"(API key) by following the steps on <a href=\"https://fr.wordpress."
+"org/plugins/easytransac/installation/\">the installation guide</a> and "
+"configure the settings.<strong>EasyTransac needs the Woocomerce plugin."
+"</strong>"
 msgstr ""
-"Vous obtenez la clé sur cette page que vous devez coller sur la page de "
-"configuration de la passerelle de paiement WooCommerce (étape 8)."
+"Encaissement via EasyTransac pour Woocommerce. Connectez votre compte <a "
+"href=\"https://www.easytransac.com\">www.easytransac.com</a> pour obtenir "
+"une clé d'application (API key) en suivant <a href=\"https://fr.wordpress."
+"org/plugins/easytransac/installation/\">le guide d'installation</a> et en "
+"configurant les réglages.<strong>Le module WooCommerce doit être installé."
+"</strong>"
 
-#. Found in installation list item, faq list item.
-msgid ""
-"Create account on https://www.easytransac.com, then log in and got to "
-"'Applications' and add a new application.\n"
-"On the application creation page, you'll have to give a name to the "
-"application that will allow you to filter the transactions if you have many "
-"uses of EasyTransac."
-msgstr ""
-"Créez un compte sur https://www.easytransac.com, ensuite connectez vous et "
-"allez à 'Applications' et ajoutez une nouvelle application.\n"
-"Sur la page de création d'application, vous devez donner un nom à votre "
-"application. Cela vous premettra de filtrer les transactions si vous "
-"utilisez EasyTransac pour plusieurs activités."
-
-#. Found in installation list item, faq list item.
-msgid ""
-"Please enter the IP address of your server hosting your e-commerce website "
-"in the allowed IP address section.\n"
-"In the notification URL enter your website's URI followed by '/wc-api/"
-"easytransac'. Example: http://yoursite.com/wc-api/easytransac"
-msgstr ""
-"Veuillez entrer l'adresse IP du serveur hébergeant votre site Web de e-"
-"commerce dans la section adresses IP autorisées.Dans l'URL de notification, "
-"entrez l'adresse de votre site suivi de '/wc-api/easytransac'. Par example: "
-"http://yoursite.com/wc-api/easytransac"
-
-#. Found in faq list item.
-msgid ""
-"First of all, create an account on https://www.easytransac.com, then log in "
-"and got to 'Applications' and add a new application.\n"
-"On the application creation page, you'll have to give a name to the "
-"application that will allow you to filter the transactions if you have many "
-"uses of EasyTransac."
-msgstr ""
-"Tout d'abord, créez un compte sur https://www.easytransac.com, ensuite "
-"connectez vous et allez à 'Applications' et ajoutez une nouvelle "
-"application.\n"
-"Sur la page de création d'application, vous devez donner un nom à votre "
-"application. Cela vous premettra de filtrer les transactions si vous "
-"utilisez EasyTransac pour plusieurs activités."
-
-#. Found in description paragraph.
-msgid "Please check the following points in order to install this module:"
-msgstr ""
-"Veuillez vérifier les points suivant dans l'ordre afin d'installer ce module:"
-
-#. Found in description paragraph.
-msgid "Please check your phpinfo for the following requirements:"
-msgstr "Veuillez vérifier votre phpinfo pour les pré-requis suivante:"
-
-#. Found in installation list item, faq list item.
-msgid ""
-"Install the WooCommerce plugin or check it is enable if you already got it."
-msgstr "Installez le plugin WooCommerce ou vérifiez s'il est bien activé."
-
-#. Found in description paragraph.
-msgid ""
-"<strong>Requirements</strong>: PHP Curl extension and OpenSSL version 1.0.1 "
-"(visible in your phpinfo)."
-msgstr ""
-"<strong>Pré-requis</strong>: Extension PHP Curl et OpenSSL version 1.0.1 "
-"(visible dans votre phpinfo)."
-
-#. Found in description paragraph.
-msgid ""
-"<strong>Please read the installation guide before using this plugin and "
-"follow the steps in the FAQ to create your EasyTransac account.</strong>"
-msgstr ""
-"<strong>Veuillez lire le guide d'installation avant d'utiliser ce plugin et "
-"suivez les étapes dans la FAQ pour créer votre compte EasyTransac</strong>"
-
-#. Found in description paragraph.
-msgid "Easy payment solution for your Wordpress WooCommerce website:"
-msgstr "Solution de paiement facile pour les sites Wordpress WooCommerce:"
-
-#. Found in description list item.
-msgid ""
-"Configure the EasyTransac plugin by following the <strong>FAQ</strong> and "
-"the <strong>Installation guide</strong>"
-msgstr ""
-"Configurez le plugin EasyTransac en suivant la <strong>FAQ</strong> et le "
-"<strong>guide d'installation</strong>"
-
-#. Found in description list item.
-msgid ""
-"Create your EasyTransac account on <a href=\"https://www.easytransac.com"
-"\">www.easytransac.com</a>"
-msgstr ""
-"Créez votre compte EasyTransac sur <a href=\"https://www.easytransac.com"
-"\">www.easytransac.com</a>"
-
-#. Found in description list item.
-msgid "Download and install this plugin"
-msgstr "Télécharger et installer ce plugin"
-
-#. Found in description list item.
-msgid "Ensure you have the WooCommerce plugin enabled first"
-msgstr "Assurez vous tout d'abord d'avoir le plugin WooCommerce activé"
-
-#. Found in description list item.
-msgid ""
-"Check that your webserver has the minimum requirements (PHP Curl, OpenSSL "
-"1.0.1)"
-msgstr ""
-"Vérifiez que votre serveur web possède les minimums requis (PHP Curl, "
-"OpenSSL 1.0.1)"
-
-#. Found in description list item.
-msgid "EasyTransac provides turnkey secure payment at very low charge rates"
-msgstr ""
-"EasyTransac fournit un paiement sécurisé clé en main à des taux très bas"
-
-#. Found in description list item.
-msgid "Accept all CB, VISA, and Mastercard payments in euro"
-msgstr "Acceptez toutes les CB, Visa et Mastercard payés en euro"
-
-#. Found in description header.
-msgid "Easy install step by step"
-msgstr "Installation facile étape par étape"
-
-#. Found in description header.
-msgid "Introduction"
-msgstr "Introduction"
-
-#. Found in description paragraph.
-msgid ""
-"See our website for <a href=\"https://www.easytransac.com/en/e-comerce\">a "
-"complete list of our other E-comerce modules</a>"
-msgstr ""
-"Visitez notre site pour <a href=\"https://www.easytransac.com/en/e-comerce"
-"\">une liste complète de notre autres plugins de paiement</a>"
-
-#. Found in description header.
-msgid "Requirements"
-msgstr "Pré-requis"
-
-#. Found in installation list item, faq list item.
-msgid ""
-"You can chose the application type: 'Test' means that payments aren't real, "
-"whereas Live is for production use."
-msgstr ""
-"Vous pouvez choisir le type d'application: 'Test' cela signifie que les "
-"paiements ne sont pas réels, contrairement à une utilisation en production."
-
-#. Found in faq list item.
-msgid ""
-"You also get the key on this page that you need to paste on the WooCommerce "
-"payment gateway configuration page (Installation-&gt;Step 3)."
-msgstr ""
-"Vous obtenez la clé sur cette page que vous devez coller sur la page de "
-"configuration de la passerelle de paiement WooCommerce (Installation-&gt;"
-"Étape 3)."
-
-#. Found in faq header.
-msgid "How to get my EasyTransac API Key?"
-msgstr "Comment obtenir ma clé d'API EasyTransac."
-
-#. Found in installation list item, faq list item.
-msgid ""
-"Use the WooCommerce-&gt;Settings-&gt;Checkout-&gt;EasyTransac screen to "
-"configure your EasyTransac API key."
-msgstr ""
-"Utilisez l'écran de WooCommerce-&gt;Paramètres-&gt;Paiment-&gt;EasyTransac "
-"pour configurer la clé d'API."
-
-#. Found in installation list item, faq list item.
-msgid "Activate the plugin through the 'Plugins' screen in WordPress"
-msgstr "Activez l'extension sur la page « Extensions » dans WordPress"
-
-#. Found in installation list item, faq list item.
-msgid ""
-"Upload the plugin files to the <code>/wp-content/plugins/"
-"easytransac_woocommerce</code> directory, or install the plugin through the "
-"WordPress plugins screen directly."
-msgstr ""
-"Uploadez les fichier du plugin dans le dossier <code>/wp-content/plugins/"
-"easytransac_woocommerce</code>, ou installez le depuis la page de plugin "
-"Wordpress directement."
-
-#. Found in changelog list item.
-msgid "Easytransac SDK integration. New requirement : PHP &gt;= 5.5."
-msgstr "Intégration du SDK EasyTransac. Nouveaux pré-requis : PHP &gt;= 5.5."
-
-#. Found in changelog list item.
-msgid "Language of payment page is set."
-msgstr "Langue de la page de paiement à été définie."
-
-#. Found in changelog list item.
-msgid "OneClick payments."
-msgstr "Paiements OneClick."
-
-#. Found in changelog list item.
-msgid "Notification URL helper on settings page."
-msgstr "Assistant URL de notification sur la page de paramètres."
-
-#. Found in changelog list item.
-msgid "cURL fallback."
-msgstr "Retrait de cURL."
-
-#. Found in changelog list item.
-msgid "New logo."
-msgstr "Nouveau logo."
-
-#. Found in changelog list item.
-msgid ""
-"TLSv1.1 Fallback instead of TLSv1 which is not working correctly on certain "
-"systems."
-msgstr ""
-"TLSv1.1 plutôt TLSv1 qui ne fonctionne pas correctement sur certains "
-"systèmes."
-
-#. Found in changelog list item.
-msgid "Non-HTTPS websites hotfix."
-msgstr "HotFix pour les sites en Non-HTTPS."
-
-#. Found in changelog list item.
-msgid ""
-"Refund support removed: EasyTransac API doesn't support partial refund nor "
-"WooCommerce supports full refund only. Refund can still be done via the "
-"EasyTransac back office."
-msgstr ""
-"Possibilité de remboursement retirée: l'API EasyTransac ne supporte pas un "
-"remboursement partiel. Le remboursement peut toujours être fait depuis le "
-"BackOffice EasyTransac."
-
-#. Found in changelog list item.
-msgid "The cart is only emptied when the payment is completed."
-msgstr "Le panier est vidé uniquement quand le paiement est complété."
-
-#. Found in changelog list item.
-msgid "Cancel button redirects back to the cart."
-msgstr "Bouton d'annulation renvoie au panier."
-
-#. Found in changelog list item.
-msgid "Adds system requirements checks."
-msgstr "Ajout des pré-requis."
-
-#. Found in changelog list item.
-msgid "Support for non-HTTPS websites."
-msgstr "Support des sites non-HTTPS."
-
-#. Found in changelog list item.
-msgid "French translations."
-msgstr "Traduction française."
-
-#. Found in changelog list item.
-msgid "WooCommerce Payment Gateway."
-msgstr "Plateforme de paiement pour WooCommerce."
+#. Plugin URI of the plugin/theme
+msgid "https://www.easytransac.com"
+msgstr "https://www.easytransac.com"
