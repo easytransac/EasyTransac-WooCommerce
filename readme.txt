@@ -1,10 +1,10 @@
-=== EasyTransac for WooCommerce ===
+=== EasyTransac pour WooCommerce ===
 Contributors: EasyTransac
 Tags: payment,checkout,payment pro,encaissement,moyen de paiement,paiement,bezahlsystem,purchase,online payment,easytransac
 Requires at least: 4.1
-Tested up to: 5.2.1
-Requires PHP: 5.6
-Stable tag: 2.8
+Tested up to: 5.4
+Requires PHP: 7.0
+Stable tag: 2.20
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,60 +13,67 @@ EasyTransac payment gateway for WooCommerce.
 == Description ==
 = Introduction =
 
+Notre module EasyTransac pour WooCommerce vous permet d'encaisser simplement les paiements CB sur votre site Wordpress.
+
+ * EasyTransac accepte les paiement en EURO uniquement (Visa et Mastercard)
+ * EasyTransac propose des taux bas pour des paiement sécurisés sur votre site E-commerce
+
+ ------------------------------------------------------
+
 Easy payment solution for your Wordpress WooCommerce website:
 
- * Accept all CB, VISA, and Mastercard payments in euro
+ * Accept VISA and Mastercard payments in EURO only
  * EasyTransac provides turnkey secure payment at very low charge rates
 
-= Easy install step by step =
-
-Please check the following points in order to install this module:
-
- * Check that your webserver has the minimum requirements (PHP Curl, OpenSSL 1.0.1)
- * Ensure you have the WooCommerce plugin enabled first
- * Download and install this plugin
- * Create your EasyTransac account on www.easytransac.com
- * Configure the EasyTransac plugin by following the **FAQ** and the **Installation guide**
-
-
-**Please read the installation guide before using this plugin and follow the steps in the FAQ to create your EasyTransac account.**
-
-**Requirements**: PHP Curl extension and OpenSSL version 1.0.1 (visible in your phpinfo).
-
-See our website for a complete list of our other E-comerce modules
-
 
 == Installation ==
 == Installation ==
 
-1. Create account on https://www.easytransac.com, then log in and got to \'Applications\' and add a new application.
-On the application creation page, you\'ll have to give a name to the application that will allow you to filter the transactions if you have many uses of EasyTransac.
-2. You also get the key on this page that you need to paste on the WooCommerce payment gateway configuration page (Step 8).
-3. You can chose the application type: \'Test\' means that payments aren\'t real, whereas Live is for production use.
-4. Please enter the IP address of your server hosting your e-commerce website in the allowed IP address section.
-In the notification URL enter your website\'s URI followed by \'/wc-api/easytransac\'. Example: http://yoursite.com/wc-api/easytransac
-5. Install the WooCommerce plugin or check it is enable if you already got it.
-6. Upload the plugin files to the `/wp-content/plugins/easytransac_woocommerce` directory, or install the plugin through the WordPress plugins screen directly.
-7. Activate the plugin through the \'Plugins\' screen in WordPress
-8. Use the WooCommerce->Settings->Checkout->EasyTransac screen to configure your EasyTransac API key.
+1. Installez le module WooCommerce si vous ne l'avez pas déjà et activez-le sur votre site Wordpress.
+2. Installez et activez ensuite notre module EasyTransac pour WooCommerce.
+3. Créez un compte sur https://www.easytransac.com et rendez vous dans la partie E-Commerce dans laquelle vous pourrez créer une Application.
+Depuis la page de création de l'Application, vous pouvez choisir le nom de l'application qui vous permettra de filtrer vos futures transactions.
+4. Copiez-collez la clé d'API depuis la page de l'application sur EasyTransac dans la configuration du module EasyTransac pour WooCommerce.
+5. Le type d'application Test (ou Démo) signifie que les paiements ne sont pas réels, le type Live (ou Réel) indique que les paiements sont réellement effectués en banque.
+6. Veuillez saisir l'adresse IP de votre serveur dans le cadre des adresses IP autorisées.
+Pour le lien de notification, saisissez l'adresse de votre site internet, suivie de: /wc-api/easytransac. Exemple: http://www.mon-site.com/wc-api/easytransac
 
 
-== Frequently Asked Questions ==
-= How to get my EasyTransac API Key? =
+------------------------------------------------------
 
-* First of all, create an account on https://www.easytransac.com, then log in and got to \'Applications\' and add a new application.
-On the application creation page, you\'ll have to give a name to the application that will allow you to filter the transactions if you have many uses of EasyTransac.
-* You also get the key on this page that you need to paste on the WooCommerce payment gateway configuration page (Installation->Step 3).
-* You can chose the application type: \'Test\' means that payments aren\'t real, whereas Live is for production use.
-* Please enter the IP address of your server hosting your e-commerce website in the allowed IP address section.
-In the notification URL enter your website\'s URI followed by \'/wc-api/easytransac\'. Example: http://yoursite.com/wc-api/easytransac
+1. Ensure that you have the WooCommerce plugin enabled on your Wordpress site.
+2. Install our plugin EasyTransac for WooCommerce afterwards.
+3. Create an account on https://www.easytransac.com, then log in and go to the E-commerce Applications menu in order to create an application to be linked with your Wordpress site.
+On the application creation page, enter a name for your app that will allow you to filter your transactions by usage.
+4. Copy the API key from the application page to our plugin's configuration page.
+5. You can chose the application type: 'Test' meaning that payments aren't real, whereas Live is for production use.
+6. Please enter the IP address of your server hosting your Wordpress website in the allowed IP addresses section.
+For the notification link, please enter your website's link followed by '/wc-api/easytransac'. Example: http://yoursite.com/wc-api/easytransac
+
 
 == Changelog ==
+
+= 2.20 =
+* Status update on payment retry with in progress status locked
+
+= 2.12 =
+* Disable stock level reduce options
+* Settings quick link
+* E-mail notification option for order id and paid amount mismatch
+
+= 2.11 =
+* WooCommerce Subscription update
+
+= 2.10 =
+* EasyTransac SDK v1.1.2
+
+= 2.9 =
+* Oneclick display
+
 = 2.8 =
 * English-French translations
 * Updated EasyTransac SDK to 1.0.14
 * Reworded OneClick texts 
-
 
 = 2.7 =
 * English-French translations

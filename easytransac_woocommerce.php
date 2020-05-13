@@ -5,8 +5,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
 /**
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
- * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure this plugin <a href="../wp-admin/admin.php?page=wc-settings&tab=checkout&section=easytransacgateway">here.</a> <strong>EasyTransac need Woocomerce.</strong>
- * Version: 2.11
+ * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure the settings.<strong>EasyTransac needs the Woocomerce plugin.</strong>
+ * Version: 2.20
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
@@ -87,7 +87,8 @@ function init_easytransac_gateway() {
 					'title' => __('Enable/Disable', 'easytransac_woocommerce') ,
 					'type' => 'checkbox',
 					'label' => __('Enable EasyTransac payment', 'easytransac_woocommerce') ,
-					'default' => 'yes'
+					'default' => 'yes',
+					'desc_tip' => true,
 				) ,
 				'title' => array(
 					'title' => __('Title', 'easytransac_woocommerce') ,
@@ -115,6 +116,20 @@ function init_easytransac_gateway() {
 					'type' => 'checkbox',
 					'label' => __('Enable One Click payments', 'easytransac_woocommerce') ,
 					'default' => 'no'
+				) ,
+				'disable_stock' => array(
+					'title' => __('Disable order stock level reduce', 'easytransac_woocommerce') ,
+					'type' => 'checkbox',
+					'label' => __('Makes orders not reduce stock level', 'easytransac_woocommerce') ,
+					'default' => 'no',
+					'desc_tip' => true,
+				) ,
+				'notifemail' => array(
+					'title' => __('Notification e-mail for missing order notification', 'easytransac_woocommerce') ,
+					'type' => 'text',
+					'label' => __('Comma separated e-mail list to notify when an EasyTransac notification references a missing order ID, useful with bank transfers.', 'easytransac_woocommerce') ,
+					'default' => '',
+					'desc_tip' => true,
 				) ,
 				'notifurl' => array(
 					'title' => __('Notification URL', 'easytransac_woocommerce') ,
@@ -222,7 +237,7 @@ function init_easytransac_gateway() {
 			$openssl_info_string = OPENSSL_VERSION_NUMBER >= 0x10001000 ? 'TLSv1.2' : 'OpenSSL version deprecated';
 			$https_info_string = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'S' : '';
 
-			$version_string = sprintf('WooCommerce 2.5 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
+			$version_string = sprintf('WooCommerce 2.20 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
 			$language = get_locale() == 'fr_FR' ? 'FRE' : 'ENG';
 
 			// If Debug Mode is enabled
@@ -397,12 +412,15 @@ function init_easytransac_gateway() {
 					);
 			}
 
-			// Reduce stock levels
-			if (function_exists('wc_reduce_stock_levels')) {
-				// WooCommerce v3
-				wc_reduce_stock_levels($order);
-			} else {
-				$order->reduce_order_stock();
+			// Reduce stock levels if not disabled by option.
+			
+			if($this->get_option('disable_stock') == 'no'){
+				if (function_exists('wc_reduce_stock_levels')) {
+					// WooCommerce v3
+					wc_reduce_stock_levels($order);
+				} else {
+					$order->reduce_order_stock();
+				}
 			}
 
 			// Redirect to EasyTransac Payment page
@@ -504,41 +522,178 @@ function init_easytransac_gateway() {
 				exit;
 			}
 
-			$order = new WC_Order($response->getOrderId());
+			$notificationMessages = [];
+
+			$invalidOrderIdFormat = false;
+			
+			// Bank transfer notification
+			if( $response->getOperationType() == 'credit' ){
+
+				error_log('EasyTransac debug: credit notification');
+
+				$invalidOrderIdFormat = true;
+
+				// Extract possible order id from description.
+				// $text = $response->getDescription();// TODO SDK caveat
+				$text = '';
+
+				if(!empty($received_data['Description'])){
+					$text = $received_data['Description'];
+				}
+
+				if(empty($text)){
+					error_log('EasyTransac debug: error : missing description for credit decode');
+				}
+
+				preg_match_all("/[0-9]+/", $text, $matches);
+
+				error_log('EasyTransac debug: possible credit IDs: '.json_encode($matches));
+
+				if(!empty($matches)){
+					$matches = end($matches);
+				}
+
+				foreach($matches as $possible_id){
+					try {
+						$possible_id = intval($possible_id);
+
+						error_log('EasyTransac debug: checking on ID: '.$possible_id);
+						
+						$order = new WC_Order($possible_id);
+
+						error_log('EasyTransac debug: order found: '. (!!$order ? 'yes' : 'no' ));
+
+						if($order && $order->get_total() > 0){
+
+							// Check amount match.
+							error_log('EasyTransac debug: checking possible order ID: '.$possible_id.' '.$response->getAmount().' =?= '.$order->get_total());
+
+							if($response->getAmount() == $order->get_total()){
+								$invalidOrderIdFormat = false;
+								$response->setOrderId($possible_id);
+
+								error_log('EasyTransac debug: found order ID with matching total: '.$possible_id.' '.$order->get_total());
+
+								if($response->getOrderId() != $possible_id){
+									error_log('EasyTransac debug: error : set id doesnt match the new id: '.$response->getOrderId().' != '.$possible_id);
+								}
+
+								break;
+							}
+						}
+					} catch (\Throwable $th) {
+					}
+				}
+			}elseif(preg_match('/ /', $response->getOrderId())){
+				// $invalidOrderIdFormat = true;
+				error_log('EasyTransac debug: invalid order id containing a space format that is not a credit type'.$response->getOrderId());
+			}
+			
+			$order_id_info = $response->getOrderId();
+			if($response->getOperationType() == 'credit' && !empty($received_data['Description'])){
+				$order_id_info = $received_data['Description'];
+			}
+			if($invalidOrderIdFormat || ! ($order = new WC_Order($response->getOrderId())) || 0)
+			{
+				$notificationMessages[] =  
+					sprintf('La commande "%s" de %s EUR pour laquelle un %s a été reçu sur EasyTransac n\'a pas été trouvée.',
+						$order_id_info, 
+						$response->getAmount(),
+						$response->getOperationType() === 'payment' ? 'paiement' : 'virement'
+					);
+
+				$errMsg = 'EasyTransac: Order ID not found: '.$order_id_info;
+				error_log($errMsg);
+				EasyTransac\Core\Logger::getInstance()->write('Order ID missing: '. $errMsg);
+
+			}
+			elseif($response->getAmount() != $order->get_total() || 0){
+				$notificationMessages[] =  
+				sprintf('La commande "%s" de %s EUR ne correspond pas au %s de %s EUR reçu par EasyTransac.',
+					$order_id_info, 
+					$order->get_total(),
+					$response->getOperationType() === 'payment' ? 'paiement' : 'virement',
+					$response->getAmount()
+				);
+
+				$order->add_order_note( end($notificationMessages) );
+
+				$errMsg = 'EasyTransac: amounts mismatch for order: '.$order_id_info;
+				error_log($errMsg);
+				EasyTransac\Core\Logger::getInstance()->write('Amounts mismatch: '. $errMsg);
+			}
+
+			if(!empty($notificationMessages)){
+
+				if(empty($this->get_option('notifemail'))){
+					die('Integrity error but no notification mail set.');
+				}
+				if(!isset($_GET['wc-api'])){
+					// E-mail notification triggered by EMS only.
+					$subject = 'EasyTransac notification';
+					$message = implode("\n", $notificationMessages);
+					$emails = preg_split('/[,;]/', $this->get_option('notifemail'));
+					$emails = array_filter($emails);
+					
+					foreach ($emails as $destEmail) {
+						$destEmail = trim($destEmail);
+						if(filter_var($destEmail, FILTER_VALIDATE_EMAIL)){
+							wp_mail( $destEmail, $subject, $message );
+						}
+					}
+					die('Order missing or amount mismatch. Notification sent.');
+				}
+				header('Location: ' . $this->get_return_url());
+				exit;
+			}
+
+
+			if(!isset($_GET['wc-api']) && $order->get_status() == 'processing'){
+				// EMS response.
+				die('Order status already processing no status change');
+			}
 
 			// Save transaction ID
-			update_post_meta($response->getOrderId(), 'ET_Tid', $response->getTid());
-
-			switch ($response->getStatus()) {
-				case 'failed':
-					EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getError() . ' - ' . $response->getMessage());
-                    $order->update_status('failed', $response->getMessage());
-					wc_add_notice(__('Payment error:', 'easytransac_woocommerce') . $response->getMessage(), 'error');
-				break;
-
-				case 'captured':
+			
+			if($order->get_status() != 'processing'){
+				// Not changing processing status.
+				update_post_meta($response->getOrderId(), 'ET_Tid', $response->getTid());
+				switch ($response->getStatus()) {
+					case 'failed':
+						EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $response->getError() . ' - ' . $response->getMessage());
+						$order->update_status('failed', $response->getMessage());
+						wc_add_notice(__('Payment error:', 'easytransac_woocommerce') . $response->getMessage(), 'error');
+					break;
+					
+					case 'captured':
 					// Saves ClientId
-					add_user_meta($order->get_user_id(), 'easytransac-clientid', $response->getClient()->getId());
+					if($response->getClient())
+						add_user_meta($order->get_user_id(), 'easytransac-clientid', $response->getClient()->getId());
 					$order->payment_complete();
 					// Empty cart
 					global $woocommerce;
 					$woocommerce->cart->empty_cart();
-				break;
-
-				case 'pending':
-					// Nothing to do
-				break;
-
-				case 'refunded':
-					$order->update_status('refunded', $response->getMessage());
-				break;
+					break;
+					
+					case 'pending':
+						// Nothing to do
+					break;
+					
+					case 'refunded':
+						$order->update_status('refunded', $response->getMessage());
+					break;
+				}
+			}
+			if(!isset($_GET['wc-api'])){
+				// EMS response.
+				die('Order status received');
 			}
 
 			header('Location: ' . $this->get_return_url());
 		}
 
 		/**
-		* Process EasyTransac response and saves order.
+		* Process EasyTransac response and saves order only used by oneclick response yet.
 		*
 		* @global type $woocommerce
 		* @param EasyTransac\Entities\DoneTransaction $received_data
@@ -548,6 +703,9 @@ function init_easytransac_gateway() {
 		function process_response($received_data) {
 			$order = new WC_Order($received_data);
 
+			if($order->get_status() == 'processing'){
+				return;
+			}
 			// Saves transaction ID in the order object.
 			update_post_meta($received_data->getOrderId(), 'ET_Tid', $received_data->getTid());
 
@@ -565,7 +723,7 @@ function init_easytransac_gateway() {
 				break;
 
 				case 'pending':
-					// Nothing to do
+					// Waiting
 				break;
 
 				case 'refunded':
@@ -649,3 +807,27 @@ add_filter('woocommerce_payment_gateways', 'add_easytransac_gateway');
 
 // Internationalization
 load_plugin_textdomain('easytransac_woocommerce', false, dirname(plugin_basename(__FILE__)) . DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'languages'.DIRECTORY_SEPARATOR);
+
+// Settings quick link.
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'add_action_links' );
+function add_action_links ( $links ) {
+	$mylinks = array(
+	'<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=easytransacgateway' ) . '">'.__('Settings').'</a>',
+	);
+   return array_merge( $links, $mylinks );
+}
+
+// Stock level reduce option.
+function processing_easytransac_stock_not_reduced( $reduce_stock, $order ) {
+    if ($order->get_payment_method() == 'easytransac' ) {
+		if(($options = get_option('woocommerce_easytransac_settings'))){
+			if(isset($options['disable_stock']) && $options['disable_stock'] == 'yes'){
+				return false;
+			}
+		}
+    }
+    return $reduce_stock;
+}
+add_filter( 'woocommerce_can_reduce_order_stock', 'processing_easytransac_stock_not_reduced', 20, 2 );
+
+
