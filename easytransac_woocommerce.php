@@ -6,7 +6,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
  * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure the settings.<strong>EasyTransac needs the Woocomerce plugin.</strong>
- * Version: 2.20
+ * Version: 2.30
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
@@ -237,7 +237,7 @@ function init_easytransac_gateway() {
 			$openssl_info_string = OPENSSL_VERSION_NUMBER >= 0x10001000 ? 'TLSv1.2' : 'OpenSSL version deprecated';
 			$https_info_string = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'S' : '';
 
-			$version_string = sprintf('WooCommerce 2.20 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
+			$version_string = sprintf('WooCommerce 2.30 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
 			$language = get_locale() == 'fr_FR' ? 'FRE' : 'ENG';
 
 			// If Debug Mode is enabled
@@ -340,19 +340,23 @@ function init_easytransac_gateway() {
 
 						if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
 						{
-							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product) + (100 * WC_Subscriptions_Product::get_sign_up_fee($product)));// Whole amount[]
+							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product) + (100 * WC_Subscriptions_Product::get_sign_up_fee($product)));
+						}
+						else
+						{
+							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product));
 						}
 
 						$transaction->setMultiplePaymentsRepeat(WC_Subscriptions_Product::get_length($product));
 					}
 					else
 					{
+						$transaction->setRebill('yes');
 						$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product));// Amount per period
 					}
 
 					if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
 					{
-
 						$transaction->setDownPayment(100 * (WC_Subscriptions_Product::get_price($product) + WC_Subscriptions_Product::get_sign_up_fee($product)));// Subscription fee added on firstpayment
 					}
 
@@ -529,8 +533,6 @@ function init_easytransac_gateway() {
 			// Bank transfer notification
 			if( $response->getOperationType() == 'credit' ){
 
-				error_log('EasyTransac debug: credit notification');
-
 				$invalidOrderIdFormat = true;
 
 				// Extract possible order id from description.
@@ -547,8 +549,6 @@ function init_easytransac_gateway() {
 
 				preg_match_all("/[0-9]+/", $text, $matches);
 
-				error_log('EasyTransac debug: possible credit IDs: '.json_encode($matches));
-
 				if(!empty($matches)){
 					$matches = end($matches);
 				}
@@ -557,22 +557,15 @@ function init_easytransac_gateway() {
 					try {
 						$possible_id = intval($possible_id);
 
-						error_log('EasyTransac debug: checking on ID: '.$possible_id);
-						
 						$order = new WC_Order($possible_id);
-
-						error_log('EasyTransac debug: order found: '. (!!$order ? 'yes' : 'no' ));
 
 						if($order && $order->get_total() > 0){
 
 							// Check amount match.
-							error_log('EasyTransac debug: checking possible order ID: '.$possible_id.' '.$response->getAmount().' =?= '.$order->get_total());
 
 							if($response->getAmount() == $order->get_total()){
 								$invalidOrderIdFormat = false;
 								$response->setOrderId($possible_id);
-
-								error_log('EasyTransac debug: found order ID with matching total: '.$possible_id.' '.$order->get_total());
 
 								if($response->getOrderId() != $possible_id){
 									error_log('EasyTransac debug: error : set id doesnt match the new id: '.$response->getOrderId().' != '.$possible_id);

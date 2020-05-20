@@ -4,7 +4,7 @@ Tags: payment,checkout,payment pro,encaissement,moyen de paiement,paiement,bezah
 Requires at least: 4.1
 Tested up to: 5.4
 Requires PHP: 7.0
-Stable tag: 2.20
+Stable tag: 2.30
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,10 @@ For the notification link, please enter your website's link followed by '/wc-api
 
 
 == Changelog ==
+
+= 2.30 =
+* WooCommerce subscription without signup fees.
+* Bank transfer notification added.
 
 = 2.20 =
 * Status update on payment retry with in progress status locked
