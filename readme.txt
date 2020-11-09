@@ -2,9 +2,9 @@
 Contributors: EasyTransac
 Tags: payment,checkout,payment pro,encaissement,moyen de paiement,paiement,bezahlsystem,purchase,online payment,easytransac
 Requires at least: 4.1
-Tested up to: 5.4
+Tested up to: 5.5
 Requires PHP: 7.0
-Stable tag: 2.30
+Stable tag: 2.54
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,24 @@ For the notification link, please enter your website's link followed by '/wc-api
 
 
 == Changelog ==
+
+= 2.54 =
+* EasyTransac SDK v1.2.0 update.
+
+= 2.53 =
+* WooCommerce subscription: Minimum initial payment of 20%.
+
+= 2.52 =
+* EU VAT assistant vat number support.
+
+= 2.51 =
+* Test up to hint for Wordpress 5.5.
+
+= 2.50 =
+* WooCommerce subscription recurring percent discount.
+
+= 2.40 =
+* WooCommerce subscription taxes included.
 
 = 2.30 =
 * WooCommerce subscription without signup fees.
