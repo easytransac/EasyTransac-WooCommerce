@@ -6,11 +6,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
  * Plugin Name: EasyTransac for WooCommerce
  * Plugin URI: https://www.easytransac.com
  * Description: Payment Gateway for EasyTransac. Create your account on <a href="https://www.easytransac.com">www.easytransac.com</a> to get your application key (API key) by following the steps on <a href="https://fr.wordpress.org/plugins/easytransac/installation/">the installation guide</a> and configure the settings.<strong>EasyTransac needs the Woocomerce plugin.</strong>
- * Version: 2.30
+ * Version: 2.54
  *
  * Text Domain: easytransac_woocommerce
  * Domain Path: /i18n/languages/
- *
+ * WC requires at least: 3.0.0
+ * WC tested up to: 4.3.1
  */
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
@@ -213,6 +214,43 @@ function init_easytransac_gateway() {
 				}
 			}
 
+			// Coupons recurring percent discount for subscriptions.
+			$discount_type = null;
+			$recurring_discount_amount = 0;
+
+			try {
+				foreach( $order->get_coupon_codes() as $coupon_code ){
+					// Retrieving the coupon ID.
+					$coupon_post_obj = get_page_by_title($coupon_code, OBJECT, 'shop_coupon');
+					$coupon_id       = $coupon_post_obj->ID;
+
+					// Get an instance of WC_Coupon object in an array(necessary to use WC_Coupon methods)
+					$coupon = new WC_Coupon($coupon_id);
+
+					$discount_type = $coupon->get_discount_type();
+				}
+				
+				// Get the Coupon discount amounts in the order
+				if($discount_type == 'recurring_percent'){
+					$recurring_discount_amount = $order->get_discount_total();
+					$recurring_discount_tax = $order->get_discount_tax();
+					$get_total = $order->get_total();
+					// $msg_debug = sprintf("Discount TYPE: %s - DISCOUNT [ %s ] - DISCOUNT TAX [ %s ]  - ORDER TOTAL [ %s ]",
+					// 						$discount_type,
+					// 						$recurring_discount_amount,
+					// 						$recurring_discount_tax,
+					// 						$get_total);
+					// error_log('DEBUG: '.$msg_debug);
+					$recurring_discount_amount += $recurring_discount_tax;
+				}
+			} catch (Exception $exc) {
+				$discount_type = null;
+				$recurring_discount_amount = 0;
+				error_log('Easytransac discount exception: '.$exc->getMessage());
+			}
+
+			// -----------------------------------
+
 			if($subscriptions_counter > 1)
 			{
 				wc_add_notice(__('Payment failed: ', 'easytransac_woocommerce') . 'only one subscription handled', 'error');
@@ -237,7 +275,7 @@ function init_easytransac_gateway() {
 			$openssl_info_string = OPENSSL_VERSION_NUMBER >= 0x10001000 ? 'TLSv1.2' : 'OpenSSL version deprecated';
 			$https_info_string = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'S' : '';
 
-			$version_string = sprintf('WooCommerce 2.30 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
+			$version_string = sprintf('WooCommerce 2.52 [cURL %s, OpenSSL %s, HTTP%s]', $curl_info_string, $openssl_info_string, $https_info_string);
 			$language = get_locale() == 'fr_FR' ? 'FRE' : 'ENG';
 
 			// If Debug Mode is enabled
@@ -334,32 +372,64 @@ function init_easytransac_gateway() {
 						->setVersion($version_string)
 						->setLanguage($language);
 
+					// EU VAT assistant.
+					$has_vat_number = false;
+					try{
+						$vn = get_post_meta($order->get_id(), 'vat_number', true);
+						$has_vat_number = !empty($vn);
+						unset($vn);
+					}catch(Exception $e){
+						error_log('Easytransac vat_number exception: '.$e->getMessage());
+					}
+
+					# Subscription product price.
+					if( ! $has_vat_number){
+						$product_price = wc_get_price_including_tax($product);
+					}else{
+						$product_price = wc_get_price_excluding_tax($product);
+					}
+
+					# Fee
+					$signup_fee_inc_tax = wc_get_price_including_tax($product, ['price' =>  WC_Subscriptions_Product::get_sign_up_fee($product)] );
+					$signup_fee_exc_tax = wc_get_price_excluding_tax($product, ['price' =>  WC_Subscriptions_Product::get_sign_up_fee($product)] );
+					if( ! $has_vat_number){
+						$signup_fee = $signup_fee_inc_tax;
+					}else{
+						$signup_fee = $signup_fee_exc_tax;
+					}
+
+
 					if(WC_Subscriptions_Product::get_length($product) > 0)
 					{
-						$transaction->setMultiplePayments(WC_Subscriptions_Product::get_length($product) > 0 ? 'yes' : 'no');// If expire date is a number (value>0) of days = yes
+						$transaction->setMultiplePayments(WC_Subscriptions_Product::get_length($product) > 0 ? 'yes' : 'no');
+						// If expire date is a number (value>0) of days = yes
 
-						if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
-						{
-							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product) + (100 * WC_Subscriptions_Product::get_sign_up_fee($product)));
-						}
-						else
-						{
-							$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product) * WC_Subscriptions_Product::get_length($product));
-						}
+						$amount = 100 * ($product_price - $recurring_discount_amount)
+								  * WC_Subscriptions_Product::get_length($product) 
+								  + (100 * $signup_fee);
+						$transaction->setAmount($amount);
 
 						$transaction->setMultiplePaymentsRepeat(WC_Subscriptions_Product::get_length($product));
+
+						# Minimum initial payment of 20%.
+						$initial = intval(ceil(0.20 * $amount));
+						if($initial > ($amount / WC_Subscriptions_Product::get_length($product) )){
+							$transaction->setDownPayment($initial);
+						}
 					}
 					else
 					{
 						$transaction->setRebill('yes');
-						$transaction->setAmount(100 * WC_Subscriptions_Product::get_price($product));// Amount per period
+						$transaction->setAmount( 100 * 
+												 ($product_price - $recurring_discount_amount));
+												 // Amount per period
+						if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
+						{
+							// Subscription fee added on firstpayment
+							$transaction
+							->setDownPayment(100 * ($product_price - $recurring_discount_amount + $signup_fee));
+						}
 					}
-
-					if(WC_Subscriptions_Product::get_sign_up_fee($product) > 0)
-					{
-						$transaction->setDownPayment(100 * (WC_Subscriptions_Product::get_price($product) + WC_Subscriptions_Product::get_sign_up_fee($product)));// Subscription fee added on firstpayment
-					}
-
 
 					switch ($product_subscription) {
 						case 'day':
