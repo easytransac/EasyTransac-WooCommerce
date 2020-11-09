@@ -1,11 +1,11 @@
-<?php
+<?php 
 
 namespace EasyTransac\Converters;
 
 /**
- * Convert boolean vals in String vals (yes, no)
+ * Change Value Yes/No to yes/no
  */
-class BooleanToString implements IConverter
+class YesNoLowerCase implements IConverter
 {
 	/**
 	 * {@inheritDoc}
@@ -13,11 +13,11 @@ class BooleanToString implements IConverter
 	 */
 	public function convert($value)
 	{
-		if ($value === true)
+		if ($value === 'Yes')
 			return 'yes';
-		else if ($value === false)
+		else if ($value == 'No')
 			return 'no';
-		else
+		else 
 			return $value;
 	}
 }
