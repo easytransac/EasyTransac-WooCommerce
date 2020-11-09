@@ -6,6 +6,7 @@ use \EasyTransac\Core\CommentParser;
 use \EasyTransac\Core\Services;
 use EasyTransac\Core\Logger;
 use EasyTransac\Converters\BooleanToString;
+use EasyTransac\Converters\YesNoLowerCase;
 
 /**
  * Generic entity
@@ -17,25 +18,26 @@ abstract class Entity
     protected $mapping = [];
     protected $additionalFields = [];
     protected $converters = [];
-	
+
     public function __construct()
     {
     	$this->addConverter(new BooleanToString());
+    	$this->addConverter(new YesNoLowerCase());
         $this->makeMapping();
     }
-    
+
     /**
      * Attach a api argument converter
-     * @param EasyTransac\Converters\IConverter $converter
+     * @param \EasyTransac\Converters\IConverter $converter
      * @return \EasyTransac\Entities\Entity
      */
     public function addConverter(\EasyTransac\Converters\IConverter $converter)
     {
     	$this->converters[] = $converter;
-    	
+
     	return $this;
     }
-    
+
     /**
      * Call all registred converters
      * @param Mixed $value
@@ -48,17 +50,17 @@ abstract class Entity
         	foreach ($this->converters as $converter)
         		$value = $converter->convert($value) ;
         }
-        
+
         return $value;
     }
-    
+
     /**
      * Allows to set a value not yet implemented in the SDK but available in the API
      * @param String $name Name of the parameter to set
      * @param Array $arguments
      * @return mixed
      */
-    public function __call($name, $arguments) 
+    public function __call($name, $arguments)
     {
     	if (preg_match('#^get(.*)$#', $name, $matches))
     	{
@@ -85,10 +87,10 @@ abstract class Entity
         if (is_array($fields))
             $this->hydrateWithArray($fields, $checkRequired);
         else if(is_object($fields))
-            $this->hydrateWidthObject($fields, $checkRequired);
+            $this->hydrateWithObject($fields, $checkRequired);
 
         Logger::getInstance()->write($this->toArray());
-        
+
         return $this;
     }
 
@@ -118,7 +120,7 @@ abstract class Entity
             else if ($value['type'] == 'object')
                 $out += $this->{$key}->toArray();
         }
-        
+
         // Add also the additional fields
         if (!empty($this->additionalFields))
         {
@@ -129,7 +131,7 @@ abstract class Entity
         			$list = array();
         			foreach ($additionalField as $c)
         				$list[] = $c->toArray();
-        				
+
         			$out[$key] = $list;
         		}
         		else if (is_object($additionalField))
@@ -141,7 +143,7 @@ abstract class Entity
 
         return $out;
     }
-    
+
     /**
      * Fill the entity with an list of entity (see: CreditCardList with comment tag @array)
      * @param Array<Entity> $itemsList
@@ -153,10 +155,10 @@ abstract class Entity
         foreach ($this->mapping as $key => $value)
             if ($value['type'] == 'array')
                 $field = $value;
-    
+
         if ($field == null)
             return;
-    
+
         $list = array();
         foreach ($itemsList as $item)
         {
@@ -167,13 +169,13 @@ abstract class Entity
         }
         $this->{$field['field']} = $list;
     }
-    
+
     /**
      * Fill the entity with the API json response
      * @param \stdClass $fields
      * @param Boolean $checkRequired
      */
-    protected function hydrateWidthObject($fields, $checkRequired = false)
+    protected function hydrateWithObject($fields, $checkRequired = false)
     {
         foreach ($this->mapping as $key => $value)
         {
